@@ -153,3 +153,5 @@ requirements-dev.txt
 
 # Ruff
 .ruff_cache/
+.specstory
+.cursorindexingignore
