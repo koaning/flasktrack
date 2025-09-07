@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+      with:
+        enable-cache: true
+        cache-dependency-glob: "requirements*.txt"
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      run: uv python install ${{ matrix.python-version }}
+    
+    - name: Compile requirements
+      run: |
+        uv pip compile requirements-in.txt -o requirements.txt
+        uv pip compile requirements-dev-in.txt -o requirements-dev.txt
+    
+    - name: Install dependencies
+      run: |
+        uv pip sync requirements.txt requirements-dev.txt
+        uv pip install -e .
+    
+    - name: Run linting
+      run: |
+        uv run ruff check src/ tests/
+        uv run black --check src/ tests/
+    
+    - name: Run tests
+      run: |
+        uv run pytest tests/ -v --tb=short
+    
+    - name: Run tests with coverage
+      run: |
+        uv run pytest tests/ --cov=flasktrack --cov-report=term-missing --cov-report=xml
+    
+    - name: Upload coverage to Codecov
+      if: matrix.python-version == '3.11'
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        fail_ci_if_error: false
+
+  lint:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+    
+    - name: Set up Python
+      run: uv python install 3.11
+    
+    - name: Compile requirements
+      run: |
+        uv pip compile requirements-in.txt -o requirements.txt
+        uv pip compile requirements-dev-in.txt -o requirements-dev.txt
+    
+    - name: Install dependencies
+      run: |
+        uv pip sync requirements.txt requirements-dev.txt
+        uv pip install -e .
+    
+    - name: Check code formatting
+      run: uv run black --check src/ tests/
+    
+    - name: Run ruff linter
+      run: uv run ruff check src/ tests/
