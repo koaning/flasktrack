@@ -142,6 +142,14 @@ def test_init_command_file_contents():
         assert "ruff format" in justfile
         assert "ruff check" in justfile
         assert "black" not in justfile
+        # Verify host is set to localhost instead of 0.0.0.0
+        assert "--host=127.0.0.1" in justfile
+        assert "--host=0.0.0.0" not in justfile
+        
+        # Check run.py has correct host configuration
+        run_py = (project_dir / "run.py").read_text()
+        assert "host='127.0.0.1'" in run_py
+        assert "host='0.0.0.0'" not in run_py
 
 
 def test_init_command_requires_project_name():
@@ -179,3 +187,38 @@ def test_init_command_with_dot_uses_directory_name():
         finally:
             # Restore original directory
             os.chdir(original_cwd)
+
+
+def test_generated_project_flask_app_works():
+    """Test that generated project Flask app can start and serve templates."""
+    import sys
+    
+    with tempfile.TemporaryDirectory() as tmpdir:
+        project_dir = Path(tmpdir) / "flask_integration_test"
+        result = runner.invoke(app, ["init", "Flask Integration Test", "--dir", str(project_dir)])
+        
+        assert result.exit_code == 0
+        
+        # Add the generated project to Python path
+        sys.path.insert(0, str(project_dir))
+        
+        try:
+            # Import and test the generated Flask app
+            from app import create_app
+            flask_app = create_app()
+            
+            with flask_app.test_client() as client:
+                # Test main routes
+                response = client.get('/')
+                assert response.status_code == 200
+                
+                response = client.get('/auth/login')
+                assert response.status_code == 200
+                
+                response = client.get('/auth/register') 
+                assert response.status_code == 200
+                
+        finally:
+            # Clean up Python path
+            if str(project_dir) in sys.path:
+                sys.path.remove(str(project_dir))

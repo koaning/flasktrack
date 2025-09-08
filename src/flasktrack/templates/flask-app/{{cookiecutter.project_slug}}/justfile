@@ -22,8 +22,8 @@ install:
     @echo "✅ Development environment ready!"
 
 # Run the development server
-run port=5000:
-    uv run flask run --debug --port=port
+run:
+    uv run flask run --debug --host=127.0.0.1 --port={{ cookiecutter.flask_port }}
 
 # Run tests
 test:
