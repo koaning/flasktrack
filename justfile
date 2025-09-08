@@ -29,6 +29,19 @@ lint:
 lint-fix:
     ruff check --fix src/ tests/
 
+# Format code with ruff
+format:
+    ruff format src/ tests/
+
+# Check code formatting
+format-check:
+    ruff format --check src/ tests/
+
+# Fix all issues (lint + format)
+fix:
+    ruff check --fix src/ tests/
+    ruff format src/ tests/
+
 # Run all checks (format check and lint)
 check: format-check lint
 

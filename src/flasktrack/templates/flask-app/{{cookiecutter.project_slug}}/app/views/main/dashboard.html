@@ -1,0 +1,24 @@
+{% raw %}{% extends "layouts/base.html" %}
+
+{% block title %}Dashboard - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <h1>Dashboard</h1>
+    <p>Welcome back, {{ current_user.username }}!</p>
+    
+    <div class="card">
+        <h2>Your Account</h2>
+        <dl>
+            <dt>Username:</dt>
+            <dd>{{ current_user.username }}</dd>
+            
+            <dt>Email:</dt>
+            <dd>{{ current_user.email }}</dd>
+            
+            <dt>Member Since:</dt>
+            <dd>{{ current_user.created_at.strftime('%B %d, %Y') }}</dd>
+        </dl>
+    </div>
+</div>
+{% endblock %}{% endraw %}

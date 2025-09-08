@@ -26,29 +26,33 @@ class FlaskTracker:
     
     def _load_app(self) -> None:
         """Load the Flask application from the given path."""
-        if self.app_path.suffix == ".py":
-            spec = importlib.util.spec_from_file_location("flask_app", self.app_path)
-            if spec and spec.loader:
-                module = importlib.util.module_from_spec(spec)
-                sys.modules["flask_app"] = module
-                spec.loader.exec_module(module)
-                
-                for attr_name in dir(module):
-                    attr = getattr(module, attr_name)
-                    if isinstance(attr, Flask):
-                        self.app = attr
-                        break
-                    elif callable(attr) and attr_name in ["create_app", "make_app"]:
-                        try:
-                            potential_app = attr()
-                            if isinstance(potential_app, Flask):
-                                self.app = potential_app
-                                break
-                        except Exception:
-                            pass
+        if self.app_path.suffix == ".py" and self.app_path.exists():
+            try:
+                spec = importlib.util.spec_from_file_location("flask_app", self.app_path)
+                if spec and spec.loader:
+                    module = importlib.util.module_from_spec(spec)
+                    sys.modules["flask_app"] = module
+                    spec.loader.exec_module(module)
+                    
+                    for attr_name in dir(module):
+                        attr = getattr(module, attr_name)
+                        if isinstance(attr, Flask):
+                            self.app = attr
+                            break
+                        elif callable(attr) and attr_name in ["create_app", "make_app"]:
+                            try:
+                                potential_app = attr()
+                                if isinstance(potential_app, Flask):
+                                    self.app = potential_app
+                                    break
+                            except Exception:
+                                pass
+            except Exception:
+                # If loading fails, fall back to default app
+                pass
         
         if not self.app:
-            self.app = Flask(__name__)
+            self.app = Flask("flasktrack")
     
     def start_tracking(self, host: str = "127.0.0.1", port: int = 5000) -> None:
         """Start tracking the Flask application.

@@ -1,0 +1,11 @@
+{
+    "project_name": "My Flask App",
+    "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '_').replace('-', '_') }}",
+    "author_name": "Your Name",
+    "author_email": "your.email@example.com",
+    "description": "A Flask application",
+    "python_version": "3.11",
+    "flask_port": "5000",
+    "database_url": "sqlite:///{{ cookiecutter.project_slug }}.db",
+    "secret_key": "{{ random_ascii_string(32) }}"
+}

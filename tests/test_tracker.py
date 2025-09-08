@@ -26,7 +26,7 @@ def test_get_routes(flask_app_file):
     tracker = FlaskTracker(flask_app_file)
     routes = tracker.get_routes()
     
-    assert len(routes) == 4
+    assert len(routes) == 5
     
     route_rules = [r["rule"] for r in routes]
     assert "/" in route_rules
@@ -44,7 +44,7 @@ def test_analyze(flask_app_file):
     tracker = FlaskTracker(flask_app_file)
     analysis = tracker.analyze()
     
-    assert analysis["total_routes"] == 4
+    assert analysis["total_routes"] == 5
     assert analysis["app_name"] == "flask_app"
     assert analysis["debug_mode"] is False
     assert analysis["testing_mode"] is False

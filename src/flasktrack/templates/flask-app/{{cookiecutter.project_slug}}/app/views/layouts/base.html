@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% raw %}{% block title %}{% endraw %}{{ cookiecutter.project_name }}{% raw %}{% endblock %}{% endraw %}</title>
+    {% raw %}<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_css %}{% endblock %}{% endraw %}
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            {% raw %}<a href="{{ url_for('main.index') }}" class="navbar-brand">{% endraw %}{{ cookiecutter.project_name }}{% raw %}</a>{% endraw %}
+            <div class="navbar-menu">
+                {% raw %}{% if current_user.is_authenticated %}
+                    <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
+                    <a href="{{ url_for('auth.logout') }}">Logout ({{ current_user.username }})</a>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}">Login</a>
+                    <a href="{{ url_for('auth.register') }}">Register</a>
+                {% endif %}{% endraw %}
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        {% raw %}{% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}{% endraw %}
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; {{ cookiecutter.project_name }} - Built with FlaskTrack</p>
+        </div>
+    </footer>
+
+    {% raw %}<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}{% endraw %}
+</body>
+</html>
