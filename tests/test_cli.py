@@ -13,7 +13,7 @@ def test_version():
     """Test version command."""
     result = runner.invoke(app, ["version"])
     assert result.exit_code == 0
-    assert __version__ in result.stdout
+    assert result.stdout.strip() == __version__
 
 
 def test_routes_command(flask_app_file):
@@ -24,28 +24,3 @@ def test_routes_command(flask_app_file):
     assert "/api/users" in result.stdout
 
 
-def test_analyze_command(flask_app_file):
-    """Test analyze command."""
-    result = runner.invoke(app, ["analyze", str(flask_app_file)])
-    assert result.exit_code == 0
-    assert "Flask Application Analysis" in result.stdout
-    assert "total_routes" in result.stdout
-
-
-def test_analyze_with_output(flask_app_file, tmp_path):
-    """Test analyze command with output file."""
-    output_file = tmp_path / "analysis.json"
-    result = runner.invoke(
-        app, 
-        ["analyze", str(flask_app_file), "--output", str(output_file)]
-    )
-    assert result.exit_code == 0
-    assert output_file.exists()
-    assert "Analysis saved to" in result.stdout
-
-
-def test_track_command_help():
-    """Test track command help."""
-    result = runner.invoke(app, ["track", "--help"])
-    assert result.exit_code == 0
-    assert "Track a Flask application" in result.stdout

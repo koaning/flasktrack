@@ -50,7 +50,7 @@ def test_init_command_creates_project():
         assert (project_dir / "requirements-dev.txt").exists()
         assert (project_dir / "requirements-in.txt").exists()
         assert (project_dir / "requirements-dev-in.txt").exists()
-        assert (project_dir / "run.py").exists()
+        assert (project_dir / "app.py").exists()
         assert (project_dir / ".env").exists()
         assert (project_dir / ".gitignore").exists()
         assert (project_dir / "README.md").exists()
@@ -146,10 +146,10 @@ def test_init_command_file_contents():
         assert "--host=127.0.0.1" in justfile
         assert "--host=0.0.0.0" not in justfile
         
-        # Check run.py has correct host configuration
-        run_py = (project_dir / "run.py").read_text()
-        assert "host='127.0.0.1'" in run_py
-        assert "host='0.0.0.0'" not in run_py
+        # Check app.py has correct host configuration
+        app_py = (project_dir / "app.py").read_text()
+        assert "host='127.0.0.1'" in app_py
+        assert "host='0.0.0.0'" not in app_py
 
 
 def test_init_command_requires_project_name():

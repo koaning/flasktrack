@@ -22,103 +22,7 @@ app = typer.Typer(
 console = Console()
 
 
-@app.command()
-def track(
-    app_path: Optional[Path] = typer.Argument(
-        None,
-        help="Path to the Flask application file or module",
-    ),
-    host: str = typer.Option(
-        "127.0.0.1",
-        "--host",
-        "-h",
-        help="Host to track the Flask app on",
-    ),
-    port: int = typer.Option(
-        5000,
-        "--port",
-        "-p",
-        help="Port to track the Flask app on",
-    ),
-    verbose: bool = typer.Option(
-        False,
-        "--verbose",
-        "-v",
-        help="Enable verbose output",
-    ),
-):
-    """Track a Flask application's endpoints and performance."""
-    if app_path is None:
-        console.print("[bold red]Error:[/bold red] Missing argument 'APP_PATH'.")
-        console.print("\n[bold cyan]Usage:[/bold cyan] flasktrack track [APP_PATH]")
-        console.print("\nTrack a Flask application's endpoints and performance.")
-        console.print("\n[bold cyan]Arguments:[/bold cyan]")
-        console.print("  APP_PATH  Path to the Flask application file or module")
-        console.print("\n[bold cyan]Options:[/bold cyan]")
-        console.print("  -h, --host TEXT     Host to track the Flask app on [default: 127.0.0.1]")
-        console.print("  -p, --port INTEGER  Port to track the Flask app on [default: 5000]")
-        console.print("  -v, --verbose       Enable verbose output")
-        console.print("  --help              Show this message and exit.")
-        raise typer.Exit(1)
-    
-    if not app_path.exists():
-        console.print(f"[bold red]Error:[/bold red] Path '{app_path}' does not exist.")
-        raise typer.Exit(1)
-    
-    console.print(f"[bold green]Starting FlaskTrack[/bold green] 🚀")
-    console.print(f"Tracking app at: {app_path}")
-    
-    tracker = FlaskTracker(app_path, verbose=verbose)
-    tracker.start_tracking(host=host, port=port)
 
-
-@app.command()
-def analyze(
-    app_path: Optional[Path] = typer.Argument(
-        None,
-        help="Path to the Flask application file or module",
-    ),
-    output: Optional[Path] = typer.Option(
-        None,
-        "--output",
-        "-o",
-        help="Output file for analysis report",
-    ),
-):
-    """Analyze a Flask application's structure and endpoints."""
-    if app_path is None:
-        console.print("[bold red]Error:[/bold red] Missing argument 'APP_PATH'.")
-        console.print("\n[bold cyan]Usage:[/bold cyan] flasktrack analyze [APP_PATH]")
-        console.print("\nAnalyze a Flask application's structure and endpoints.")
-        console.print("\n[bold cyan]Arguments:[/bold cyan]")
-        console.print("  APP_PATH  Path to the Flask application file or module")
-        console.print("\n[bold cyan]Options:[/bold cyan]")
-        console.print("  -o, --output PATH  Output file for analysis report")
-        console.print("  --help             Show this message and exit.")
-        raise typer.Exit(1)
-    
-    if not app_path.exists():
-        console.print(f"[bold red]Error:[/bold red] Path '{app_path}' does not exist.")
-        raise typer.Exit(1)
-    
-    console.print(f"[bold blue]Analyzing Flask application[/bold blue] 🔍")
-    console.print(f"Application: {app_path}")
-    
-    tracker = FlaskTracker(app_path, verbose=False)
-    analysis = tracker.analyze()
-    
-    table = Table(title="Flask Application Analysis")
-    table.add_column("Metric", style="cyan")
-    table.add_column("Value", style="green")
-    
-    for key, value in analysis.items():
-        table.add_row(key, str(value))
-    
-    console.print(table)
-    
-    if output:
-        tracker.save_analysis(analysis, output)
-        console.print(f"[green]Analysis saved to {output}[/green]")
 
 
 @app.command()
@@ -255,7 +159,7 @@ def init(
 @app.command()
 def version():
     """Show the version of FlaskTrack."""
-    print(f"[bold cyan]FlaskTrack[/bold cyan] version [bold green]{__version__}[/bold green]")
+    print(__version__)
 
 
 @app.callback(invoke_without_command=True)
@@ -269,14 +173,11 @@ def main(
         console.print("[bold cyan]Usage:[/bold cyan] flasktrack [COMMAND]")
         console.print("\n[bold cyan]Commands:[/bold cyan]")
         console.print("  [bold green]init[/bold green]     Initialize a new Flask application")
-        console.print("  [bold blue]track[/bold blue]    Track a Flask application's endpoints and performance")
-        console.print("  [bold blue]analyze[/bold blue]  Analyze a Flask application's structure")
         console.print("  [bold blue]routes[/bold blue]   List all routes in a Flask application")
         console.print("  [bold yellow]version[/bold yellow]  Show version information")
         console.print("\n[bold cyan]Examples:[/bold cyan]")
         console.print("  flasktrack init \"My New App\"")
         console.print("  flasktrack init .  # Uses current directory name")
-        console.print("  flasktrack track app.py")
         console.print("  flasktrack routes app.py")
         console.print("\nRun '[bold cyan]flasktrack [COMMAND] --help[/bold cyan]' for more information on a command.")
 

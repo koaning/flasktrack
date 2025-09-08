@@ -1,6 +1,6 @@
-# {{ cookiecutter.project_name }}
+# haptik
 
-{{ cookiecutter.description }}
+A Flask application
 
 ## Prerequisites
 
@@ -24,12 +24,12 @@ just install
 just run
 ```
 
-Visit `http://localhost:{{ cookiecutter.flask_port }}` to see your application.
+Visit `http://localhost:5000` to see your application.
 
 ## Project Structure
 
 ```
-{{ cookiecutter.project_slug }}/
+haptik/
 ├── app/                    # Application package
 │   ├── controllers/        # Route handlers (Rails-style)
 │   ├── models/            # Database models
@@ -40,7 +40,7 @@ Visit `http://localhost:{{ cookiecutter.flask_port }}` to see your application.
 ├── migrations/            # Database migrations
 ├── tests/                 # Test suite
 ├── .env.example          # Environment variables template
-└── app.py                # Application entry point
+└── run.py                # Application entry point
 ```
 
 ## Features
