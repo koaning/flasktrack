@@ -1,4 +1,4 @@
-name: CI
+name: Tests
 
 on:
   push:
@@ -30,11 +30,6 @@ jobs:
     
     - name: Install dependencies
       run: just install
-    
-    - name: Check code formatting and linting
-      run: |
-        uv run ruff check src/ tests/
-        uv run ruff format --check src/ tests/
     
     - name: Run tests
       run: just test
