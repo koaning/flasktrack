@@ -10,6 +10,7 @@ from rich.table import Table
 
 from flasktrack import __version__
 from flasktrack.tracker import FlaskTracker
+from flasktrack.utils import add_user_to_app
 
 app = typer.Typer(
     name="flasktrack",
@@ -154,6 +155,66 @@ def init(
 
 
 @app.command()
+def add_user(
+    username: str = typer.Argument(..., help="Username for the new user"),
+    email: str = typer.Argument(..., help="Email address for the new user"),
+    password: str | None = typer.Option(
+        None,
+        "--password",
+        "-p",
+        help="Password for the new user (will prompt if not provided)",
+    ),
+    app_path: Path = typer.Option(
+        Path.cwd(),
+        "--app-path",
+        "-a",
+        help="Path to the Flask application directory",
+    ),
+):
+    """Add a new user to a Flask application created with 'ft init'."""
+    console.print(f"[bold cyan]Adding user:[/bold cyan] {username}")
+    
+    # Check if the app_path contains a Flask app
+    app_file = app_path / "app.py"
+    if not app_file.exists():
+        console.print(f"[bold red]Error:[/bold red] No Flask application found at {app_path}")
+        console.print("Make sure you're in a directory created with 'ft init' or specify --app-path")
+        raise typer.Exit(1)
+    
+    # Check if the app directory exists
+    app_dir = app_path / "app"
+    if not app_dir.exists():
+        console.print(f"[bold red]Error:[/bold red] No 'app' directory found at {app_path}")
+        console.print("This doesn't appear to be a Flask app created with 'ft init'")
+        raise typer.Exit(1)
+    
+    # If password not provided, prompt for it
+    if password is None:
+        password = typer.prompt("Password", hide_input=True, confirmation_prompt=True)
+    
+    try:
+        # Add the user to the database
+        success = add_user_to_app(
+            app_path=app_path,
+            username=username,
+            email=email,
+            password=password
+        )
+        
+        if success:
+            console.print(f"[bold green]✓[/bold green] User '{username}' added successfully!")
+            console.print(f"  Email: {email}")
+            console.print("\n[bold cyan]User can now log in to the application![/bold cyan]")
+        else:
+            console.print(f"[bold red]Error:[/bold red] Failed to add user. User might already exist.")
+            raise typer.Exit(1)
+            
+    except Exception as e:
+        console.print(f"[bold red]Error adding user:[/bold red] {str(e)}")
+        raise typer.Exit(1)
+
+
+@app.command()
 def version():
     """Show the version of FlaskTrack."""
     print(__version__)
@@ -169,12 +230,14 @@ def main(
         console.print(f"Version: [bold green]{__version__}[/bold green]\n")
         console.print("[bold cyan]Usage:[/bold cyan] flasktrack [COMMAND]")
         console.print("\n[bold cyan]Commands:[/bold cyan]")
-        console.print("  [bold green]init[/bold green]     Initialize a new Flask application")
-        console.print("  [bold blue]routes[/bold blue]   List all routes in a Flask application")
-        console.print("  [bold yellow]version[/bold yellow]  Show version information")
+        console.print("  [bold green]init[/bold green]      Initialize a new Flask application")
+        console.print("  [bold magenta]add-user[/bold magenta]  Add a user to a Flask application")
+        console.print("  [bold blue]routes[/bold blue]    List all routes in a Flask application")
+        console.print("  [bold yellow]version[/bold yellow]   Show version information")
         console.print("\n[bold cyan]Examples:[/bold cyan]")
         console.print("  flasktrack init \"My New App\"")
         console.print("  flasktrack init .  # Uses current directory name")
+        console.print("  flasktrack add-user john john@example.com")
         console.print("  flasktrack routes app.py")
         console.print("\nRun '[bold cyan]flasktrack [COMMAND] --help[/bold cyan]' for more information on a command.")
 
