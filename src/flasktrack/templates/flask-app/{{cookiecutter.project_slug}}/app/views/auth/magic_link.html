@@ -1,0 +1,37 @@
+{% raw %}{% extends "layouts/base.html" %}
+
+{% block title %}Magic Link Login - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <h2>Magic Link Login</h2>
+        <p class="text-muted">Enter your email to receive a magic link</p>
+        
+        <form method="POST" action="{{ url_for('auth.magic_link') }}">
+            {{ form.hidden_tag() }}
+            
+            <div class="form-group">
+                {{ form.email.label }}
+                {{ form.email(class="form-control", placeholder="Enter your email") }}
+                {% if form.email.errors %}
+                    <div class="error-message">
+                        {% for error in form.email.errors %}
+                            <small>{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                {{ form.submit(class="btn btn-primary btn-block") }}
+            </div>
+        </form>
+        
+        <div class="auth-links">
+            <p>Want to use password instead? <a href="{{ url_for('auth.login') }}">Login with password</a></p>
+            <p>Don't have an account? <a href="{{ url_for('auth.register') }}">Register</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}{% endraw %}

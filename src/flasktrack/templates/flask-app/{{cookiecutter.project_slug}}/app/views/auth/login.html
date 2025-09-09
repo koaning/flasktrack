@@ -43,5 +43,6 @@
     </form>
     
     <p>Don't have an account? <a href="{{ url_for('auth.register') }}">Register here</a></p>
+    <p>Prefer passwordless login? <a href="{{ url_for('auth.magic_link') }}">Login with magic link</a></p>
 </div>
 {% endblock %}{% endraw %}
