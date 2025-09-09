@@ -6,13 +6,17 @@ src:
     source .venv/bin/activate
 
 # Install all dependencies
+venv:
+    uv venv --allow-existing
+    source .venv/bin/activate 
+
 install: compile
     uv venv --allow-existing
     uv pip sync requirements.txt requirements-dev.txt
     uv pip install -e .
 
 # Compile requirements files
-compile:
+compile: venv
     uv pip compile requirements-in.txt -o requirements.txt
     uv pip compile requirements-dev-in.txt -o requirements-dev.txt
     uv pip sync requirements.txt requirements-dev.txt
