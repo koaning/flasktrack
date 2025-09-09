@@ -33,3 +33,5 @@ jobs:
     
     - name: Run tests
       run: just test
+      env:
+        NO_COLOR: 1
