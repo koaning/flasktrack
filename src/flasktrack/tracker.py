@@ -27,29 +27,53 @@ class FlaskTracker:
     def _load_app(self) -> None:
         """Load the Flask application from the given path."""
         if self.app_path.suffix == ".py" and self.app_path.exists():
+            # Add the app's parent directory to sys.path for relative imports
+            app_dir = str(self.app_path.parent.absolute())
+            path_added = False
+            
             try:
+                if app_dir not in sys.path:
+                    sys.path.insert(0, app_dir)
+                    path_added = True
+                
                 spec = importlib.util.spec_from_file_location("flask_app", self.app_path)
                 if spec and spec.loader:
                     module = importlib.util.module_from_spec(spec)
                     sys.modules["flask_app"] = module
                     spec.loader.exec_module(module)
 
+                    # First, look for Flask app instances
                     for attr_name in dir(module):
                         attr = getattr(module, attr_name)
                         if isinstance(attr, Flask):
                             self.app = attr
+                            if self.verbose:
+                                print(f"Found Flask app instance: {attr_name}")
                             break
-                        elif callable(attr) and attr_name in ["create_app", "make_app"]:
-                            try:
-                                potential_app = attr()
-                                if isinstance(potential_app, Flask):
-                                    self.app = potential_app
-                                    break
-                            except Exception:
-                                pass
-            except Exception:
-                # If loading fails, fall back to default app
-                pass
+                    
+                    # If no Flask instance found, look for factory functions
+                    if not self.app:
+                        for attr_name in dir(module):
+                            attr = getattr(module, attr_name)
+                            if callable(attr) and attr_name in ["create_app", "make_app"]:
+                                try:
+                                    potential_app = attr()
+                                    if isinstance(potential_app, Flask):
+                                        self.app = potential_app
+                                        if self.verbose:
+                                            print(f"Created Flask app from factory: {attr_name}")
+                                        break
+                                except Exception as e:
+                                    if self.verbose:
+                                        print(f"Failed to create app from {attr_name}: {e}")
+                                    pass
+            except Exception as e:
+                if self.verbose:
+                    print(f"Error loading Flask app from {self.app_path}: {e}")
+            finally:
+                # Clean up sys.path
+                if path_added and app_dir in sys.path:
+                    sys.path.remove(app_dir)
 
         if not self.app:
             self.app = Flask("flasktrack")
