@@ -81,7 +81,7 @@ def add_user_to_app(app_path: Path, username: str, email: str, password: str) ->
     """
     import subprocess
     import tempfile
-    
+
     # Create a Python script to add the user
     script_content = f'''
 import sys
@@ -121,12 +121,12 @@ with app.app_context():
     
     print(f"User '{{user.username}}' created successfully")
 '''
-    
+
     # Write script to temporary file and execute it
     with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
         f.write(script_content)
         temp_script = f.name
-    
+
     try:
         # Run the script in the app's Python environment
         result = subprocess.run(
@@ -135,10 +135,10 @@ with app.app_context():
             text=True,
             cwd=str(app_path)
         )
-        
+
         # Clean up temp file
         os.unlink(temp_script)
-        
+
         if result.returncode == 0:
             return True
         else:
@@ -147,7 +147,7 @@ with app.app_context():
                 return False
             # For other errors, raise an exception with the error message
             raise Exception(result.stderr or "Unknown error occurred")
-            
+
     except Exception as e:
         # Clean up temp file if it still exists
         if os.path.exists(temp_script):

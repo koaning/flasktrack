@@ -178,25 +178,25 @@ def add_user(
 ):
     """Add a new user to a Flask application created with 'ft init'."""
     console.print(f"[bold cyan]Adding user:[/bold cyan] {username}")
-    
+
     # Check if the app_path contains a Flask app
     app_file = app_path / "app.py"
     if not app_file.exists():
         console.print(f"[bold red]Error:[/bold red] No Flask application found at {app_path}")
         console.print("Make sure you're in a directory created with 'ft init' or specify --app-path")
         raise typer.Exit(1)
-    
+
     # Check if the app directory exists
     app_dir = app_path / "app"
     if not app_dir.exists():
         console.print(f"[bold red]Error:[/bold red] No 'app' directory found at {app_path}")
         console.print("This doesn't appear to be a Flask app created with 'ft init'")
         raise typer.Exit(1)
-    
+
     # If password not provided, prompt for it
     if password is None:
         password = typer.prompt("Password", hide_input=True, confirmation_prompt=True)
-    
+
     try:
         # Add the user to the database
         success = add_user_to_app(
@@ -205,15 +205,15 @@ def add_user(
             email=email,
             password=password
         )
-        
+
         if success:
             console.print(f"[bold green]✓[/bold green] User '{username}' added successfully!")
             console.print(f"  Email: {email}")
             console.print("\n[bold cyan]User can now log in to the application![/bold cyan]")
         else:
-            console.print(f"[bold red]Error:[/bold red] Failed to add user. User might already exist.")
+            console.print("[bold red]Error:[/bold red] Failed to add user. User might already exist.")
             raise typer.Exit(1)
-            
+
     except Exception as e:
         console.print(f"[bold red]Error adding user:[/bold red] {str(e)}")
         raise typer.Exit(1)

@@ -3,7 +3,15 @@
 import sys
 from urllib.parse import urlparse
 
-from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
+from flask import (
+    Blueprint,
+    current_app,
+    flash,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
 from flask_login import current_user, login_required, login_user, logout_user
 from flask_mail import Message
 
@@ -57,7 +65,7 @@ def magic_link():
             while User.query.filter_by(username=username).first():
                 username = f"{base_username}{counter}"
                 counter += 1
-            
+
             user = User(username=username, email=email)
             db.session.add(user)
 
