@@ -21,3 +21,14 @@ def test_routes_command(flask_app_file):
     assert result.exit_code == 0
     assert "Flask Routes" in result.stdout
     assert "/api/users" in result.stdout
+
+
+def test_add_user_help():
+    """Test add-user command help."""
+    result = runner.invoke(app, ["add-user", "--help"])
+    assert result.exit_code == 0
+    assert "Add a new user to a Flask application" in result.stdout
+    assert "USERNAME" in result.stdout
+    assert "EMAIL" in result.stdout
+    assert "--password" in result.stdout
+
