@@ -1,0 +1,12 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Server Error - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="error-page">
+    <h1>500</h1>
+    <h2>Internal Server Error</h2>
+    <p>Something went wrong on our end. Please try again later.</p>
+    <a href="{{ url_for('main.index') }}" class="btn btn-primary">Go Home</a>
+</div>
+{% endblock %}
