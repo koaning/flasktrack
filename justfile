@@ -27,8 +27,8 @@ test:
 
 # Fix all issues (lint + format)
 style:
-    ruff check --fix src/ tests/
-    ruff format src/ tests/
+    uv run ruff check --fix src/ tests/
+    uv run ruff format src/ tests/
 
 # Run all checks (format check and lint)
 check: style test

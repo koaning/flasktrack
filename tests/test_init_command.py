@@ -146,8 +146,8 @@ def test_init_command_file_contents():
 
         # Check app.py has correct host configuration
         app_py = (project_dir / "app.py").read_text()
-        assert "host='127.0.0.1'" in app_py
-        assert "host='0.0.0.0'" not in app_py
+        assert 'host="127.0.0.1"' in app_py
+        assert 'host="0.0.0.0"' not in app_py
 
 
 def test_init_command_requires_project_name():
@@ -178,7 +178,9 @@ def test_init_command_with_dot_uses_directory_name():
             assert "Creating Flask application: my-awesome-app" in result.stdout
 
             # Check that project was created in current directory
-            project_dir = test_dir / "my_awesome_app"  # cookiecutter converts hyphens to underscores
+            project_dir = (
+                test_dir / "my_awesome_app"
+            )  # cookiecutter converts hyphens to underscores
             assert project_dir.exists()
             assert (project_dir / "app").exists()
             assert (project_dir / "justfile").exists()
@@ -193,7 +195,9 @@ def test_generated_project_flask_app_works():
 
     with tempfile.TemporaryDirectory() as tmpdir:
         project_dir = Path(tmpdir) / "flask_integration_test"
-        result = runner.invoke(app, ["init", "Flask Integration Test", "--dir", str(project_dir)])
+        result = runner.invoke(
+            app, ["init", "Flask Integration Test", "--dir", str(project_dir)]
+        )
 
         assert result.exit_code == 0
 
@@ -206,13 +210,13 @@ def test_generated_project_flask_app_works():
             assert (project_dir / "app" / "models" / "user.py").exists()
             assert (project_dir / "app" / "controllers" / "auth.py").exists()
             assert (project_dir / "app" / "controllers" / "main.py").exists()
-            
+
             # Read and verify the app factory function exists
             app_init_content = (project_dir / "app" / "__init__.py").read_text()
             assert "def create_app" in app_init_content
             assert "from flask import Flask" in app_init_content
             assert "from flask_bcrypt import Bcrypt" in app_init_content
-            
+
             # Verify requirements are properly set up
             requirements_content = (project_dir / "requirements.txt").read_text()
             assert "flask==" in requirements_content.lower()

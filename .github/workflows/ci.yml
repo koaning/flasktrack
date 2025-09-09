@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.10", "3.11", "3.12"]
     
     steps:
     - uses: actions/checkout@v4
@@ -22,27 +22,22 @@ jobs:
         enable-cache: true
         cache-dependency-glob: "requirements*.txt"
     
+    - name: Install just
+      uses: extractions/setup-just@v2
+    
     - name: Set up Python ${{ matrix.python-version }}
       run: uv python install ${{ matrix.python-version }}
     
-    - name: Compile requirements
-      run: |
-        uv pip compile requirements-in.txt -o requirements.txt
-        uv pip compile requirements-dev-in.txt -o requirements-dev.txt
-    
     - name: Install dependencies
-      run: |
-        uv pip sync requirements.txt requirements-dev.txt
-        uv pip install -e .
+      run: just install
     
-    - name: Run linting
+    - name: Check code formatting and linting
       run: |
         uv run ruff check src/ tests/
-        uv run black --check src/ tests/
+        uv run ruff format --check src/ tests/
     
     - name: Run tests
-      run: |
-        uv run pytest tests/ -v --tb=short
+      run: just test
     
     - name: Run tests with coverage
       run: |
@@ -54,31 +49,3 @@ jobs:
       with:
         file: ./coverage.xml
         fail_ci_if_error: false
-
-  lint:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Install uv
-      uses: astral-sh/setup-uv@v3
-    
-    - name: Set up Python
-      run: uv python install 3.11
-    
-    - name: Compile requirements
-      run: |
-        uv pip compile requirements-in.txt -o requirements.txt
-        uv pip compile requirements-dev-in.txt -o requirements-dev.txt
-    
-    - name: Install dependencies
-      run: |
-        uv pip sync requirements.txt requirements-dev.txt
-        uv pip install -e .
-    
-    - name: Check code formatting
-      run: uv run black --check src/ tests/
-    
-    - name: Run ruff linter
-      run: uv run ruff check src/ tests/

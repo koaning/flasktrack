@@ -21,5 +21,3 @@ def test_routes_command(flask_app_file):
     assert result.exit_code == 0
     assert "Flask Routes" in result.stdout
     assert "/api/users" in result.stdout
-
-
