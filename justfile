@@ -23,31 +23,15 @@ compile: venv
 
 # Run tests
 test:
-    pytest tests/
-
-# Run linter
-lint:
-    ruff check src/ tests/
-
-# Fix linting issues
-lint-fix:
-    ruff check --fix src/ tests/
-
-# Format code with ruff
-format:
-    ruff format src/ tests/
-
-# Check code formatting
-format-check:
-    ruff format --check src/ tests/
+    uv run pytest tests/
 
 # Fix all issues (lint + format)
-fix:
+style:
     ruff check --fix src/ tests/
     ruff format src/ tests/
 
 # Run all checks (format check and lint)
-check: format-check lint
+check: style test
 
 # Clean build artifacts
 clean:

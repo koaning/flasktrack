@@ -8,7 +8,7 @@ def test_register(client):
         'password': 'password123',
         'password2': 'password123'
     }, follow_redirects=True)
-    
+
     assert response.status_code == 200
     assert b'Congratulations, you are now registered!' in response.data
 
@@ -19,7 +19,7 @@ def test_login(client, test_user):
         'username': 'testuser',
         'password': 'testpass'
     }, follow_redirects=True)
-    
+
     assert response.status_code == 200
     assert b'Dashboard' in response.data
 
@@ -31,7 +31,7 @@ def test_logout(client, test_user):
         'username': 'testuser',
         'password': 'testpass'
     })
-    
+
     # Then logout
     response = client.get('/auth/logout', follow_redirects=True)
     assert response.status_code == 200

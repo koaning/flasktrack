@@ -2,9 +2,8 @@
 
 from typer.testing import CliRunner
 
-from flasktrack.cli import app
 from flasktrack import __version__
-
+from flasktrack.cli import app
 
 runner = CliRunner()
 

@@ -1,7 +1,7 @@
 """Utility functions for FlaskTrack."""
 
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 
 def format_size(size_bytes: int) -> str:
@@ -20,7 +20,7 @@ def format_size(size_bytes: int) -> str:
     return f"{size_bytes:.1f} TB"
 
 
-def get_project_info(project_path: Path) -> Dict[str, Any]:
+def get_project_info(project_path: Path) -> dict[str, Any]:
     """Get information about a Flask project.
     
     Args:
@@ -34,7 +34,7 @@ def get_project_info(project_path: Path) -> Dict[str, Any]:
         "name": project_path.name,
         "exists": project_path.exists(),
     }
-    
+
     if project_path.is_file():
         info["type"] = "file"
         info["size"] = format_size(project_path.stat().st_size)
@@ -42,7 +42,7 @@ def get_project_info(project_path: Path) -> Dict[str, Any]:
         info["type"] = "directory"
         py_files = list(project_path.glob("**/*.py"))
         info["python_files"] = len(py_files)
-    
+
     return info
 
 
@@ -57,9 +57,9 @@ def validate_flask_app(app_path: Path) -> bool:
     """
     if not app_path.exists():
         return False
-    
+
     if app_path.is_file() and app_path.suffix == ".py":
         content = app_path.read_text()
         return "from flask import" in content or "import flask" in content
-    
+
     return False

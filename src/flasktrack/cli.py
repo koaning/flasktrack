@@ -1,9 +1,6 @@
 """CLI interface for FlaskTrack."""
 
-import os
-import shutil
 from pathlib import Path
-from typing import Optional
 
 import typer
 from cookiecutter.main import cookiecutter
@@ -27,7 +24,7 @@ console = Console()
 
 @app.command()
 def routes(
-    app_path: Optional[Path] = typer.Argument(
+    app_path: Path | None = typer.Argument(
         None,
         help="Path to the Flask application file or module",
     ),
@@ -42,38 +39,38 @@ def routes(
         console.print("\n[bold cyan]Options:[/bold cyan]")
         console.print("  --help    Show this message and exit.")
         raise typer.Exit(1)
-    
+
     if not app_path.exists():
         console.print(f"[bold red]Error:[/bold red] Path '{app_path}' does not exist.")
         raise typer.Exit(1)
-    
-    console.print(f"[bold cyan]Flask Routes[/bold cyan] 📍")
-    
+
+    console.print("[bold cyan]Flask Routes[/bold cyan] 📍")
+
     tracker = FlaskTracker(app_path, verbose=False)
     routes_list = tracker.get_routes()
-    
+
     table = Table(title="Application Routes")
     table.add_column("Endpoint", style="cyan")
     table.add_column("Methods", style="yellow")
     table.add_column("Rule", style="green")
-    
+
     for route in routes_list:
         table.add_row(
             route["endpoint"],
             ", ".join(route["methods"]),
             route["rule"]
         )
-    
+
     console.print(table)
 
 
 @app.command()
 def init(
-    project_name: Optional[str] = typer.Argument(
+    project_name: str | None = typer.Argument(
         None,
         help="Name of the Flask project to create, or '.' to use current directory name",
     ),
-    directory: Optional[Path] = typer.Option(
+    directory: Path | None = typer.Option(
         None,
         "--dir",
         "-d",
@@ -94,25 +91,25 @@ def init(
         console.print("  flasktrack init \"My New App\"")
         console.print("  flasktrack init .  # Use current directory name")
         raise typer.Exit(1)
-    
+
     # Handle special case where user passes '.' to use current directory name
     if project_name == ".":
         project_name = Path.cwd().name
         console.print(f"[bold yellow]Using current directory name:[/bold yellow] {project_name}")
-    
+
     console.print(f"[bold green]Creating Flask application:[/bold green] {project_name} 🚀")
-    
+
     # Get the template directory
     template_dir = Path(__file__).parent / "templates" / "flask-app"
-    
+
     if not template_dir.exists():
         console.print(f"[bold red]Error:[/bold red] Template directory not found at {template_dir}")
         raise typer.Exit(1)
-    
+
     # Set output directory
     if directory:
         # When a specific directory is provided, we want to create the project IN that directory
-        # not as a subdirectory of it. So we'll use the parent as output_dir and the 
+        # not as a subdirectory of it. So we'll use the parent as output_dir and the
         # directory name as the project_slug
         output_dir = directory.parent if directory.parent else Path.cwd()
         project_slug = directory.name
@@ -126,7 +123,7 @@ def init(
         extra_context = {
             "project_name": project_name,
         }
-    
+
     try:
         # Run cookiecutter
         project_path = cookiecutter(
@@ -135,22 +132,22 @@ def init(
             no_input=True,
             extra_context=extra_context,
         )
-        
+
         console.print(f"[bold green]✓[/bold green] Project created at: {project_path}")
         console.print("\n[bold cyan]Next steps:[/bold cyan]")
-        
+
         # Get the relative path if possible, otherwise use absolute
         try:
             cd_path = Path(project_path).relative_to(Path.cwd())
         except ValueError:
             # Project is not in a subdirectory of cwd, use absolute path
             cd_path = Path(project_path)
-        
+
         console.print(f"  1. cd {cd_path}")
         console.print("  2. just install  # Sets up everything for development")
         console.print("  3. just run      # Start the development server")
         console.print("\n[bold green]Your Flask app is ready![/bold green] 🎉")
-        
+
     except Exception as e:
         console.print(f"[bold red]Error creating project:[/bold red] {str(e)}")
         raise typer.Exit(1)

@@ -3,8 +3,6 @@
 import tempfile
 from pathlib import Path
 
-import pytest
-
 from flasktrack.utils import format_size, get_project_info, validate_flask_app
 
 
@@ -20,7 +18,7 @@ def test_format_size():
 def test_get_project_info_file(flask_app_file):
     """Test getting project info for a file."""
     info = get_project_info(flask_app_file)
-    
+
     assert info["exists"] is True
     assert info["type"] == "file"
     assert info["name"] == flask_app_file.name
@@ -31,9 +29,9 @@ def test_get_project_info_directory(tmp_path):
     """Test getting project info for a directory."""
     (tmp_path / "app.py").write_text("print('hello')")
     (tmp_path / "test.py").write_text("print('test')")
-    
+
     info = get_project_info(tmp_path)
-    
+
     assert info["exists"] is True
     assert info["type"] == "directory"
     assert info["python_files"] == 2
@@ -42,7 +40,7 @@ def test_get_project_info_directory(tmp_path):
 def test_get_project_info_nonexistent():
     """Test getting project info for non-existent path."""
     info = get_project_info(Path("/nonexistent/path"))
-    
+
     assert info["exists"] is False
 
 
@@ -51,7 +49,7 @@ def test_validate_flask_app_valid():
     with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
         f.write("from flask import Flask\napp = Flask(__name__)")
         temp_path = Path(f.name)
-    
+
     try:
         assert validate_flask_app(temp_path) is True
     finally:
@@ -63,7 +61,7 @@ def test_validate_flask_app_import_style():
     with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
         f.write("import flask\napp = flask.Flask(__name__)")
         temp_path = Path(f.name)
-    
+
     try:
         assert validate_flask_app(temp_path) is True
     finally:
@@ -75,7 +73,7 @@ def test_validate_flask_app_invalid():
     with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
         f.write("print('not a flask app')")
         temp_path = Path(f.name)
-    
+
     try:
         assert validate_flask_app(temp_path) is False
     finally:
@@ -92,7 +90,7 @@ def test_validate_flask_app_wrong_extension():
     with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
         f.write("from flask import Flask")
         temp_path = Path(f.name)
-    
+
     try:
         assert validate_flask_app(temp_path) is False
     finally:

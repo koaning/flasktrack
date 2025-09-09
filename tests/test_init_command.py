@@ -4,11 +4,9 @@ import os
 import tempfile
 from pathlib import Path
 
-import pytest
 from typer.testing import CliRunner
 
 from flasktrack.cli import app
-
 
 runner = CliRunner()
 
@@ -18,21 +16,21 @@ def test_init_command_creates_project():
     with tempfile.TemporaryDirectory() as tmpdir:
         project_dir = Path(tmpdir) / "test_app"
         result = runner.invoke(app, ["init", "test-app", "--dir", str(project_dir)])
-        
+
         if result.exit_code != 0:
             print(f"Exit code: {result.exit_code}")
             print(f"Output: {result.stdout}")
             print(f"Exception: {result.exception}")
-        
+
         assert result.exit_code == 0
         assert "Creating Flask application: test-app" in result.stdout
         assert "Project created at:" in result.stdout
         assert "Your Flask app is ready!" in result.stdout
-        
+
         # Check that project directory was created
         assert project_dir.exists()
         assert project_dir.is_dir()
-        
+
         # Check for key files and directories
         assert (project_dir / "app").exists()
         assert (project_dir / "app" / "__init__.py").exists()
@@ -64,9 +62,9 @@ def test_init_command_with_spaces_in_name():
     with tempfile.TemporaryDirectory() as tmpdir:
         project_dir = Path(tmpdir) / "my_flask_app"
         result = runner.invoke(app, ["init", "My Flask App", "--dir", str(project_dir)])
-        
+
         assert result.exit_code == 0
-        
+
         # Check that project directory was created
         assert project_dir.exists()
 
@@ -77,12 +75,12 @@ def test_init_command_in_current_directory():
         # Change to temp directory
         original_cwd = os.getcwd()
         os.chdir(tmpdir)
-        
+
         try:
             result = runner.invoke(app, ["init", "test-app"])
-            
+
             assert result.exit_code == 0
-            
+
             # Check that project was created in current directory
             project_dir = Path(tmpdir) / "test_app"
             assert project_dir.exists()
@@ -96,40 +94,40 @@ def test_init_command_file_contents():
     with tempfile.TemporaryDirectory() as tmpdir:
         project_dir = Path(tmpdir) / "testproject"
         result = runner.invoke(app, ["init", "TestProject", "--dir", str(project_dir)])
-        
+
         assert result.exit_code == 0
-        
+
         # Check that app factory imports are correct
         app_init = (project_dir / "app" / "__init__.py").read_text()
         assert "from flask import Flask" in app_init
         assert "from flask_sqlalchemy import SQLAlchemy" in app_init
         assert "from flask_login import LoginManager" in app_init
         assert "def create_app(" in app_init
-        
+
         # Check User model
         user_model = (project_dir / "app" / "models" / "user.py").read_text()
         assert "class User(UserMixin, db.Model):" in user_model
         assert "def set_password(self, password):" in user_model
         assert "def check_password(self, password):" in user_model
-        
+
         # Check auth forms
         auth_forms = (project_dir / "app" / "forms" / "auth.py").read_text()
         assert "class LoginForm(FlaskForm):" in auth_forms
         assert "class RegistrationForm(FlaskForm):" in auth_forms
-        
+
         # Check requirements-in files
         requirements_in = (project_dir / "requirements-in.txt").read_text()
         assert "Flask>=3.0.0" in requirements_in
         assert "Flask-SQLAlchemy>=3.1.0" in requirements_in
         assert "Flask-Login>=0.6.0" in requirements_in
         assert "Flask-WTF>=1.2.0" in requirements_in
-        
+
         # Check dev requirements-in
         dev_requirements_in = (project_dir / "requirements-dev-in.txt").read_text()
         assert "pytest>=8.0.0" in dev_requirements_in
         assert "ruff>=0.1.0" in dev_requirements_in
         assert "black" not in dev_requirements_in
-        
+
         # Check justfile
         justfile = (project_dir / "justfile").read_text()
         assert "install:" in justfile
@@ -145,7 +143,7 @@ def test_init_command_file_contents():
         # Verify host is set to localhost instead of 0.0.0.0
         assert "--host=127.0.0.1" in justfile
         assert "--host=0.0.0.0" not in justfile
-        
+
         # Check app.py has correct host configuration
         app_py = (project_dir / "app.py").read_text()
         assert "host='127.0.0.1'" in app_py
@@ -155,7 +153,7 @@ def test_init_command_file_contents():
 def test_init_command_requires_project_name():
     """Test that init command requires project name and fails without it."""
     result = runner.invoke(app, ["init"])
-    
+
     assert result.exit_code == 1
     assert "Missing argument 'PROJECT_NAME'" in result.stdout
     assert "flasktrack init [PROJECT_NAME]" in result.stdout
@@ -167,18 +165,18 @@ def test_init_command_with_dot_uses_directory_name():
         # Create a subdirectory with a specific name
         test_dir = Path(tmpdir) / "my-awesome-app"
         test_dir.mkdir()
-        
+
         # Change to that directory
         original_cwd = os.getcwd()
         os.chdir(str(test_dir))
-        
+
         try:
             result = runner.invoke(app, ["init", "."])
-            
+
             assert result.exit_code == 0
             assert "Using current directory name: my-awesome-app" in result.stdout
             assert "Creating Flask application: my-awesome-app" in result.stdout
-            
+
             # Check that project was created in current directory
             project_dir = test_dir / "my_awesome_app"  # cookiecutter converts hyphens to underscores
             assert project_dir.exists()
@@ -192,32 +190,32 @@ def test_init_command_with_dot_uses_directory_name():
 def test_generated_project_flask_app_works():
     """Test that generated project Flask app can start and serve templates."""
     import sys
-    
+
     with tempfile.TemporaryDirectory() as tmpdir:
         project_dir = Path(tmpdir) / "flask_integration_test"
         result = runner.invoke(app, ["init", "Flask Integration Test", "--dir", str(project_dir)])
-        
+
         assert result.exit_code == 0
-        
+
         # Add the generated project to Python path
         sys.path.insert(0, str(project_dir))
-        
+
         try:
             # Import and test the generated Flask app
             from app import create_app
             flask_app = create_app()
-            
+
             with flask_app.test_client() as client:
                 # Test main routes
                 response = client.get('/')
                 assert response.status_code == 200
-                
+
                 response = client.get('/auth/login')
                 assert response.status_code == 200
-                
-                response = client.get('/auth/register') 
+
+                response = client.get('/auth/register')
                 assert response.status_code == 200
-                
+
         finally:
             # Clean up Python path
             if str(project_dir) in sys.path:

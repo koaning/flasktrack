@@ -2,6 +2,7 @@
 
 import os
 import tempfile
+
 import pytest
 from app import create_app, db
 from app.models.user import User
@@ -12,17 +13,17 @@ def app():
     """Create application for testing."""
     # Create a temporary database file
     db_fd, db_path = tempfile.mkstemp()
-    
+
     app = create_app('testing')
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
     app.config['TESTING'] = True
-    
+
     with app.app_context():
         db.create_all()
         yield app
         db.session.remove()
         db.drop_all()
-    
+
     # Clean up the temporary database file
     os.close(db_fd)
     os.unlink(db_path)

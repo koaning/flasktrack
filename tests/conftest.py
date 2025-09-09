@@ -11,23 +11,23 @@ from flask import Flask
 def sample_flask_app():
     """Create a sample Flask application for testing."""
     app = Flask(__name__)
-    
+
     @app.route("/")
     def index():
         return "Hello, World!"
-    
+
     @app.route("/api/users")
     def users():
         return {"users": []}
-    
+
     @app.route("/api/users/<int:user_id>")
     def user_detail(user_id):
         return {"id": user_id}
-    
+
     @app.route("/api/data", methods=["GET", "POST"])
     def data():
         return {"data": "sample"}
-    
+
     return app
 
 
@@ -57,9 +57,9 @@ def data():
     return {"data": "sample"}
 """)
         temp_path = Path(f.name)
-    
+
     yield temp_path
-    
+
     temp_path.unlink(missing_ok=True)
 
 
@@ -80,7 +80,7 @@ def create_app():
     return app
 """)
         temp_path = Path(f.name)
-    
+
     yield temp_path
-    
+
     temp_path.unlink(missing_ok=True)
