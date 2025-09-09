@@ -14,7 +14,7 @@ class FlaskTracker:
 
     def __init__(self, app_path: Path, verbose: bool = False):
         """Initialize the Flask tracker.
-        
+
         Args:
             app_path: Path to the Flask application file or module
             verbose: Enable verbose output
@@ -27,36 +27,69 @@ class FlaskTracker:
     def _load_app(self) -> None:
         """Load the Flask application from the given path."""
         if self.app_path.suffix == ".py" and self.app_path.exists():
+            # Add the app's parent directory to sys.path for relative imports
+            app_dir = str(self.app_path.parent.absolute())
+            path_added = False
+
             try:
-                spec = importlib.util.spec_from_file_location("flask_app", self.app_path)
+                if app_dir not in sys.path:
+                    sys.path.insert(0, app_dir)
+                    path_added = True
+
+                spec = importlib.util.spec_from_file_location(
+                    "flask_app", self.app_path
+                )
                 if spec and spec.loader:
                     module = importlib.util.module_from_spec(spec)
                     sys.modules["flask_app"] = module
                     spec.loader.exec_module(module)
 
+                    # First, look for Flask app instances
                     for attr_name in dir(module):
                         attr = getattr(module, attr_name)
                         if isinstance(attr, Flask):
                             self.app = attr
+                            if self.verbose:
+                                print(f"Found Flask app instance: {attr_name}")
                             break
-                        elif callable(attr) and attr_name in ["create_app", "make_app"]:
-                            try:
-                                potential_app = attr()
-                                if isinstance(potential_app, Flask):
-                                    self.app = potential_app
-                                    break
-                            except Exception:
-                                pass
-            except Exception:
-                # If loading fails, fall back to default app
-                pass
+
+                    # If no Flask instance found, look for factory functions
+                    if not self.app:
+                        for attr_name in dir(module):
+                            attr = getattr(module, attr_name)
+                            if callable(attr) and attr_name in [
+                                "create_app",
+                                "make_app",
+                            ]:
+                                try:
+                                    potential_app = attr()
+                                    if isinstance(potential_app, Flask):
+                                        self.app = potential_app
+                                        if self.verbose:
+                                            print(
+                                                f"Created Flask app from factory: {attr_name}"
+                                            )
+                                        break
+                                except Exception as e:
+                                    if self.verbose:
+                                        print(
+                                            f"Failed to create app from {attr_name}: {e}"
+                                        )
+                                    pass
+            except Exception as e:
+                if self.verbose:
+                    print(f"Error loading Flask app from {self.app_path}: {e}")
+            finally:
+                # Clean up sys.path
+                if path_added and app_dir in sys.path:
+                    sys.path.remove(app_dir)
 
         if not self.app:
             self.app = Flask("flasktrack")
 
     def start_tracking(self, host: str = "127.0.0.1", port: int = 5000) -> None:
         """Start tracking the Flask application.
-        
+
         Args:
             host: Host to run the Flask app on
             port: Port to run the Flask app on
@@ -80,7 +113,7 @@ class FlaskTracker:
 
     def analyze(self) -> dict[str, Any]:
         """Analyze the Flask application structure.
-        
+
         Returns:
             Dictionary containing analysis results
         """
@@ -100,7 +133,7 @@ class FlaskTracker:
 
     def get_routes(self) -> list[dict[str, Any]]:
         """Get all routes in the Flask application.
-        
+
         Returns:
             List of route dictionaries
         """
@@ -109,17 +142,19 @@ class FlaskTracker:
 
         routes = []
         for rule in self.app.url_map.iter_rules():
-            routes.append({
-                "rule": rule.rule,
-                "endpoint": rule.endpoint,
-                "methods": list(rule.methods - {"HEAD", "OPTIONS"}),
-            })
+            routes.append(
+                {
+                    "rule": rule.rule,
+                    "endpoint": rule.endpoint,
+                    "methods": list(rule.methods - {"HEAD", "OPTIONS"}),
+                }
+            )
 
         return sorted(routes, key=lambda x: x["rule"])
 
     def save_analysis(self, analysis: dict[str, Any], output_path: Path) -> None:
         """Save analysis results to a file.
-        
+
         Args:
             analysis: Analysis results dictionary
             output_path: Path to save the results

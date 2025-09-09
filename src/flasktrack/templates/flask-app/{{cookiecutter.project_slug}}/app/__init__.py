@@ -18,9 +18,10 @@ bcrypt = Bcrypt()
 csrf = CSRFProtect()
 mail = Mail()
 
-def create_app(config_name='development'):
+
+def create_app(config_name="development"):
     """Create and configure the Flask application."""
-    app = Flask(__name__, template_folder='views')
+    app = Flask(__name__, template_folder="views")
     app.config.from_object(config[config_name])
 
     # Initialize extensions
@@ -33,19 +34,20 @@ def create_app(config_name='development'):
     CORS(app)
 
     # Configure login manager
-    login_manager.login_view = 'auth.login'
-    login_manager.login_message = 'Please log in to access this page.'
-    login_manager.login_message_category = 'info'
+    login_manager.login_view = "auth.login"
+    login_manager.login_message = "Please log in to access this page."
+    login_manager.login_message_category = "info"
 
     # Register blueprints
     from app.controllers.auth import auth_bp
     from app.controllers.main import main_bp
 
     app.register_blueprint(main_bp)
-    app.register_blueprint(auth_bp, url_prefix='/auth')
+    app.register_blueprint(auth_bp, url_prefix="/auth")
 
     # Register error handlers
     from app.controllers import errors
+
     app.register_error_handler(404, errors.not_found_error)
     app.register_error_handler(500, errors.internal_error)
 
@@ -53,6 +55,7 @@ def create_app(config_name='development'):
     def make_shell_context():
         """Make database models available in flask shell."""
         from app.models.user import User
-        return {'db': db, 'User': User}
+
+        return {"db": db, "User": User}
 
     return app

@@ -19,9 +19,6 @@ app = typer.Typer(
 console = Console()
 
 
-
-
-
 @app.command()
 def routes(
     app_path: Path | None = typer.Argument(
@@ -55,11 +52,7 @@ def routes(
     table.add_column("Rule", style="green")
 
     for route in routes_list:
-        table.add_row(
-            route["endpoint"],
-            ", ".join(route["methods"]),
-            route["rule"]
-        )
+        table.add_row(route["endpoint"], ", ".join(route["methods"]), route["rule"])
 
     console.print(table)
 
@@ -81,29 +74,41 @@ def init(
     if project_name is None:
         console.print("[bold red]Error:[/bold red] Missing argument 'PROJECT_NAME'.")
         console.print("\n[bold cyan]Usage:[/bold cyan] flasktrack init [PROJECT_NAME]")
-        console.print("\nInitialize a new Flask application with authentication and best practices.")
+        console.print(
+            "\nInitialize a new Flask application with authentication and best practices."
+        )
         console.print("\n[bold cyan]Arguments:[/bold cyan]")
-        console.print("  PROJECT_NAME  Name of the Flask project to create, or '.' to use current directory name")
+        console.print(
+            "  PROJECT_NAME  Name of the Flask project to create, or '.' to use current directory name"
+        )
         console.print("\n[bold cyan]Options:[/bold cyan]")
-        console.print("  -d, --dir PATH  Directory to create the project in (defaults to current directory)")
+        console.print(
+            "  -d, --dir PATH  Directory to create the project in (defaults to current directory)"
+        )
         console.print("  --help          Show this message and exit.")
         console.print("\n[bold cyan]Examples:[/bold cyan]")
-        console.print("  flasktrack init \"My New App\"")
+        console.print('  flasktrack init "My New App"')
         console.print("  flasktrack init .  # Use current directory name")
         raise typer.Exit(1)
 
     # Handle special case where user passes '.' to use current directory name
     if project_name == ".":
         project_name = Path.cwd().name
-        console.print(f"[bold yellow]Using current directory name:[/bold yellow] {project_name}")
+        console.print(
+            f"[bold yellow]Using current directory name:[/bold yellow] {project_name}"
+        )
 
-    console.print(f"[bold green]Creating Flask application:[/bold green] {project_name} 🚀")
+    console.print(
+        f"[bold green]Creating Flask application:[/bold green] {project_name} 🚀"
+    )
 
     # Get the template directory
     template_dir = Path(__file__).parent / "templates" / "flask-app"
 
     if not template_dir.exists():
-        console.print(f"[bold red]Error:[/bold red] Template directory not found at {template_dir}")
+        console.print(
+            f"[bold red]Error:[/bold red] Template directory not found at {template_dir}"
+        )
         raise typer.Exit(1)
 
     # Set output directory
@@ -150,7 +155,7 @@ def init(
 
     except Exception as e:
         console.print(f"[bold red]Error creating project:[/bold red] {str(e)}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from e
 
 
 @app.command()
@@ -165,18 +170,26 @@ def main(
 ):
     """FlaskTrack - A CLI tool for tracking and analyzing Flask applications."""
     if ctx.invoked_subcommand is None:
-        console.print("[bold cyan]FlaskTrack[/bold cyan] - A Rails-inspired Flask framework with scaffolding")
+        console.print(
+            "[bold cyan]FlaskTrack[/bold cyan] - A Rails-inspired Flask framework with scaffolding"
+        )
         console.print(f"Version: [bold green]{__version__}[/bold green]\n")
         console.print("[bold cyan]Usage:[/bold cyan] flasktrack [COMMAND]")
         console.print("\n[bold cyan]Commands:[/bold cyan]")
-        console.print("  [bold green]init[/bold green]     Initialize a new Flask application")
-        console.print("  [bold blue]routes[/bold blue]   List all routes in a Flask application")
+        console.print(
+            "  [bold green]init[/bold green]     Initialize a new Flask application"
+        )
+        console.print(
+            "  [bold blue]routes[/bold blue]   List all routes in a Flask application"
+        )
         console.print("  [bold yellow]version[/bold yellow]  Show version information")
         console.print("\n[bold cyan]Examples:[/bold cyan]")
-        console.print("  flasktrack init \"My New App\"")
+        console.print('  flasktrack init "My New App"')
         console.print("  flasktrack init .  # Uses current directory name")
         console.print("  flasktrack routes app.py")
-        console.print("\nRun '[bold cyan]flasktrack [COMMAND] --help[/bold cyan]' for more information on a command.")
+        console.print(
+            "\nRun '[bold cyan]flasktrack [COMMAND] --help[/bold cyan]' for more information on a command."
+        )
 
 
 if __name__ == "__main__":

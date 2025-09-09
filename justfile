@@ -2,24 +2,18 @@
 default:
     @just --list
 
-src:
-    source .venv/bin/activate
-
 # Install all dependencies
-venv:
+install:
     uv venv --allow-existing
-    source .venv/bin/activate 
-
-install: compile
-    uv venv --allow-existing
+    uv pip compile requirements-in.txt -o requirements.txt
+    uv pip compile requirements-dev-in.txt -o requirements-dev.txt
     uv pip sync requirements.txt requirements-dev.txt
     uv pip install -e .
 
 # Compile requirements files
-compile: venv
+compile:
     uv pip compile requirements-in.txt -o requirements.txt
     uv pip compile requirements-dev-in.txt -o requirements-dev.txt
-    uv pip sync requirements.txt requirements-dev.txt
 
 # Run tests
 test:
@@ -27,8 +21,8 @@ test:
 
 # Fix all issues (lint + format)
 style:
-    ruff check --fix src/ tests/
-    ruff format src/ tests/
+    uv run ruff check --fix src/ tests/
+    uv run ruff format src/ tests/
 
 # Run all checks (format check and lint)
 check: style test
