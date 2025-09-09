@@ -46,6 +46,9 @@ Visit `http://localhost:{{ cookiecutter.flask_port }}` to see your application.
 ## Features
 
 - User authentication (login, register, logout)
+- **Magic link authentication** - passwordless login via email
+  - In development: magic links appear in the terminal
+  - In production: magic links are sent via email
 - Database migrations with Flask-Migrate
 - Form validation with Flask-WTF
 - Password hashing with Flask-Bcrypt
@@ -86,6 +89,15 @@ Copy `.env.example` to `.env` and update the values:
 ```bash
 cp .env.example .env
 ```
+
+### Magic Link Authentication
+
+When running locally in development mode, magic links will automatically appear in your terminal instead of being sent via email. This makes it easy to test the authentication flow without setting up an email server.
+
+To configure email for production:
+1. Set up your SMTP server details in `.env`
+2. Set `FLASK_ENV=production` to disable terminal output
+3. Configure `MAIL_SERVER`, `MAIL_PORT`, `MAIL_USERNAME`, and `MAIL_PASSWORD`
 
 ## Built with FlaskTrack
 
