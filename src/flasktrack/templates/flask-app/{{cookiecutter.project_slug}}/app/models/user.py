@@ -17,7 +17,9 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, nullable=False, index=True)
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
-    password_hash = db.Column(db.String(255), nullable=True)  # Made nullable for magic link users
+    password_hash = db.Column(
+        db.String(255), nullable=True
+    )  # Made nullable for magic link users
     magic_link_token = db.Column(db.String(255), unique=True, nullable=True)
     magic_link_expires = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -63,7 +65,7 @@ class User(UserMixin, db.Model):
             return False
         if self.magic_link_token != token:
             return False
-        if datetime.utcnow() > self.magic_link_expires:
+        if datetime.utcnow() > self.magic_link_expires:  # noqa: SIM103
             return False
         return True
 

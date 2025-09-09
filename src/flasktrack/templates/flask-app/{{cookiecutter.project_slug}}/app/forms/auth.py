@@ -39,14 +39,11 @@ class RegistrationForm(FlaskForm):
         """Check if email is already registered."""
         user = User.query.filter_by(email=email.data).first()
         if user is not None:
-            raise ValidationError('Email already registered. Please use another.')
+            raise ValidationError("Email already registered. Please use another.")
 
 
 class MagicLinkForm(FlaskForm):
     """Magic link request form."""
 
-    email = StringField('Email', validators=[
-        DataRequired(),
-        Email()
-    ])
-    submit = SubmitField('Send Magic Link')
+    email = StringField("Email", validators=[DataRequired(), Email()])
+    submit = SubmitField("Send Magic Link")

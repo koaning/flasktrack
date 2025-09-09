@@ -182,14 +182,20 @@ def add_user(
     # Check if the app_path contains a Flask app
     app_file = app_path / "app.py"
     if not app_file.exists():
-        console.print(f"[bold red]Error:[/bold red] No Flask application found at {app_path}")
-        console.print("Make sure you're in a directory created with 'ft init' or specify --app-path")
+        console.print(
+            f"[bold red]Error:[/bold red] No Flask application found at {app_path}"
+        )
+        console.print(
+            "Make sure you're in a directory created with 'ft init' or specify --app-path"
+        )
         raise typer.Exit(1)
 
     # Check if the app directory exists
     app_dir = app_path / "app"
     if not app_dir.exists():
-        console.print(f"[bold red]Error:[/bold red] No 'app' directory found at {app_path}")
+        console.print(
+            f"[bold red]Error:[/bold red] No 'app' directory found at {app_path}"
+        )
         console.print("This doesn't appear to be a Flask app created with 'ft init'")
         raise typer.Exit(1)
 
@@ -200,23 +206,26 @@ def add_user(
     try:
         # Add the user to the database
         success = add_user_to_app(
-            app_path=app_path,
-            username=username,
-            email=email,
-            password=password
+            app_path=app_path, username=username, email=email, password=password
         )
 
         if success:
-            console.print(f"[bold green]✓[/bold green] User '{username}' added successfully!")
+            console.print(
+                f"[bold green]✓[/bold green] User '{username}' added successfully!"
+            )
             console.print(f"  Email: {email}")
-            console.print("\n[bold cyan]User can now log in to the application![/bold cyan]")
+            console.print(
+                "\n[bold cyan]User can now log in to the application![/bold cyan]"
+            )
         else:
-            console.print("[bold red]Error:[/bold red] Failed to add user. User might already exist.")
+            console.print(
+                "[bold red]Error:[/bold red] Failed to add user. User might already exist."
+            )
             raise typer.Exit(1)
 
     except Exception as e:
         console.print(f"[bold red]Error adding user:[/bold red] {str(e)}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from e
 
 
 @app.command()

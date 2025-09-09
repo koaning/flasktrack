@@ -2,9 +2,14 @@
 
 import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
-from flasktrack.utils import format_size, get_project_info, validate_flask_app, add_user_to_app
+from flasktrack.utils import (
+    add_user_to_app,
+    format_size,
+    get_project_info,
+    validate_flask_app,
+)
 
 
 def test_format_size():
@@ -103,14 +108,14 @@ def test_add_user_to_app_mock():
     mock_result = MagicMock()
     mock_result.returncode = 0
     mock_result.stderr = ""
-    
-    with patch('subprocess.run', return_value=mock_result) as mock_run:
+
+    with patch("subprocess.run", return_value=mock_result) as mock_run:
         result = add_user_to_app(
             app_path=Path("/test/path"),
             username="testuser",
             email="test@example.com",
-            password="testpass"
+            password="testpass",
         )
-        
+
         assert result is True
         mock_run.assert_called_once()

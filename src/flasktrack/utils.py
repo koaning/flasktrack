@@ -69,13 +69,13 @@ def validate_flask_app(app_path: Path) -> bool:
 
 def add_user_to_app(app_path: Path, username: str, email: str, password: str) -> bool:
     """Add a new user to a Flask application database.
-    
+
     Args:
         app_path: Path to the Flask application directory
         username: Username for the new user
         email: Email address for the new user
         password: Password for the new user
-        
+
     Returns:
         True if user was added successfully, False otherwise
     """
@@ -83,6 +83,9 @@ def add_user_to_app(app_path: Path, username: str, email: str, password: str) ->
     import tempfile
 
     # Create a Python script to add the user
+    # We use a temp file to execute database operations in the target Flask app's
+    # context, avoiding import conflicts and ensuring proper isolation between
+    # the FlaskTrack process and the target application's environment
     script_content = f'''
 import sys
 import os
@@ -101,29 +104,29 @@ app = create_app("development")
 with app.app_context():
     # Ensure database and tables exist
     db.create_all()
-    
+
     # Check if user already exists
     existing_user = User.query.filter(
         (User.username == "{username}") | (User.email == "{email}")
     ).first()
-    
+
     if existing_user:
         print("ERROR: User with this username or email already exists", file=sys.stderr)
         sys.exit(1)
-    
+
     # Create new user
     user = User(username="{username}", email="{email}")
     user.set_password("{password}")
-    
+
     # Add and commit
     db.session.add(user)
     db.session.commit()
-    
+
     print(f"User '{{user.username}}' created successfully")
 '''
 
     # Write script to temporary file and execute it
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
         f.write(script_content)
         temp_script = f.name
 
@@ -133,7 +136,7 @@ with app.app_context():
             [sys.executable, temp_script],
             capture_output=True,
             text=True,
-            cwd=str(app_path)
+            cwd=str(app_path),
         )
 
         # Clean up temp file
