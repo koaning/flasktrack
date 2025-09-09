@@ -14,9 +14,9 @@ def app():
     # Create a temporary database file
     db_fd, db_path = tempfile.mkstemp()
 
-    app = create_app('testing')
-    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
-    app.config['TESTING'] = True
+    app = create_app("testing")
+    app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_path}"
+    app.config["TESTING"] = True
 
     with app.app_context():
         db.create_all()
@@ -44,11 +44,8 @@ def runner(app):
 @pytest.fixture
 def test_user(app):
     """Create a test user."""
-    user = User(
-        username='testuser',
-        email='test@example.com'
-    )
-    user.set_password('testpass')
+    user = User(username="testuser", email="test@example.com")
+    user.set_password("testpass")
     db.session.add(user)
     db.session.commit()
     return user

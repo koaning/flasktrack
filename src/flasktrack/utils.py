@@ -6,10 +6,10 @@ from typing import Any
 
 def format_size(size_bytes: int) -> str:
     """Format bytes as human-readable string.
-    
+
     Args:
         size_bytes: Size in bytes
-        
+
     Returns:
         Human-readable size string
     """
@@ -22,10 +22,10 @@ def format_size(size_bytes: int) -> str:
 
 def get_project_info(project_path: Path) -> dict[str, Any]:
     """Get information about a Flask project.
-    
+
     Args:
         project_path: Path to the project directory
-        
+
     Returns:
         Dictionary containing project information
     """
@@ -48,10 +48,10 @@ def get_project_info(project_path: Path) -> dict[str, Any]:
 
 def validate_flask_app(app_path: Path) -> bool:
     """Validate if a path contains a Flask application.
-    
+
     Args:
         app_path: Path to check for Flask app
-        
+
     Returns:
         True if valid Flask app found, False otherwise
     """
