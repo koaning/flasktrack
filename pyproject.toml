@@ -38,6 +38,8 @@ optional-dependencies = {dev = {file = ["requirements-dev.txt"]}}
 [tool.ruff]
 line-length = 88
 target-version = "py310"
+
+[tool.ruff.lint]
 select = [
     "E",
     "F",
@@ -49,7 +51,12 @@ select = [
     "C4",
     "SIM",
 ]
-ignore = ["E501"]
+ignore = [
+    "E501",
+    "E402",  # Module level import not at top of file (needed for templates)
+    "F821",  # Undefined name (cookiecutter variables in templates)
+    "B008",  # Do not perform function call in argument defaults (typer pattern)
+]
 
 [tool.black]
 line-length = 88

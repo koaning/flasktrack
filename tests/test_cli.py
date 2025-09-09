@@ -32,4 +32,3 @@ def test_add_user_help():
     assert "EMAIL" in result.stdout
     assert "--password" in result.stdout
 
-
