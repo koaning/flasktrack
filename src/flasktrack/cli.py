@@ -324,36 +324,46 @@ def version():
 @app.callback(invoke_without_command=True)
 def main(
     ctx: typer.Context,
+    version: bool = typer.Option(
+        False,
+        "--version",
+        "-v",
+        help="Show version information",
+    ),
 ):
     """FlaskTrack - A CLI tool for tracking and analyzing Flask applications."""
+    if version:
+        print(__version__)
+        raise typer.Exit()
+    
     if ctx.invoked_subcommand is None:
         console.print(
-            "[bold cyan]FlaskTrack[/bold cyan] - A Rails-inspired Flask framework with scaffolding"
+            "FlaskTrack - A Rails-inspired Flask framework with scaffolding"
         )
-        console.print(f"Version: [bold green]{__version__}[/bold green]\n")
-        console.print("[bold cyan]Usage:[/bold cyan] flasktrack [COMMAND]")
-        console.print("\n[bold cyan]Commands:[/bold cyan]")
+        console.print(f"Version: {__version__}\n")
+        console.print("Usage: flasktrack [COMMAND]")
+        console.print("\nCommands:")
         console.print(
-            "  [bold green]init[/bold green]      Initialize a new Flask application"
-        )
-        console.print(
-            "  [bold cyan]scaffold[/bold cyan]  Generate model, controller, forms, and views"
+            "  init      Initialize a new Flask application"
         )
         console.print(
-            "  [bold magenta]add-user[/bold magenta]  Add a user to a Flask application"
+            "  scaffold  Generate model, controller, forms, and views"
         )
         console.print(
-            "  [bold blue]routes[/bold blue]    List all routes in a Flask application"
+            "  add-user  Add a user to a Flask application"
         )
-        console.print("  [bold yellow]version[/bold yellow]   Show version information")
-        console.print("\n[bold cyan]Examples:[/bold cyan]")
+        console.print(
+            "  routes    List all routes in a Flask application"
+        )
+        console.print("  version   Show version information")
+        console.print("\nExamples:")
         console.print('  flasktrack init "My New App"')
         console.print("  flasktrack init .  # Uses current directory name")
         console.print("  flasktrack scaffold Post title:string content:text")
         console.print("  flasktrack add-user john john@example.com")
         console.print("  flasktrack routes app.py")
         console.print(
-            "\nRun '[bold cyan]flasktrack [COMMAND] --help[/bold cyan]' for more information on a command."
+            "\nRun 'flasktrack [COMMAND] --help' for more information on a command."
         )
 
 
