@@ -1,0 +1,44 @@
+"""{{ model_name }} model."""
+
+from datetime import datetime
+
+from app import db
+
+
+class {{ model_name }}(db.Model):
+    """{{ model_name }} model."""
+
+    __tablename__ = "{{ table_name }}"
+
+    id = db.Column(db.Integer, primary_key=True)
+    {% for field in fields %}
+    {% if field.is_reference %}
+    {{ field.name }}_id = db.Column(db.Integer, db.ForeignKey('{{ field.referenced_model.lower() }}s.id'), nullable=False)
+    {% elif field.type == 'boolean' %}
+    {{ field.name }} = db.Column({{ field.sqlalchemy_type }}, default=False)
+    {% else %}
+    {{ field.name }} = db.Column({{ field.sqlalchemy_type }}, nullable=False)
+    {% endif %}
+    {% endfor %}
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    {% if referenced_models %}
+    # Relationships
+    {% for field in fields %}
+    {% if field.is_reference %}
+    {{ field.name }} = db.relationship('{{ field.referenced_model }}')
+    {% endif %}
+    {% endfor %}
+
+    # TODO: Add these relationships to the referenced models:
+    {% for field in fields %}
+    {% if field.is_reference %}
+    # In {{ field.referenced_model }} model:
+    # {{ table_name }} = db.relationship('{{ model_name }}', backref='{{ field.name }}', lazy='dynamic')
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+
+    def __repr__(self):
+        return f"<{{ model_name }} {self.id}>"

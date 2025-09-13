@@ -1,0 +1,53 @@
+{% raw %}{% extends "layouts/base.html" %}
+
+{% block title %}{{ model_name_plural|capitalize }} - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>{{ model_name_plural|capitalize }}</h1>
+    
+    <div class="actions">
+        <a href="{{ url_for('{{ model_name_plural }}.new') }}" class="btn btn-primary">New {{ model_name }}</a>
+    </div>
+    
+    {% if {{ model_name_plural }} %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                {% for field in fields %}
+                <th>{{ field.name|capitalize }}</th>
+                {% endfor %}
+                <th>Created</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for {{ model_name_lower }} in {{ model_name_plural }} %}
+            <tr>
+                <td>{{ {{ model_name_lower }}.id }}</td>
+                {% for field in fields %}
+                {% if field.is_reference %}
+                <td>{{ {{ model_name_lower }}.{{ field.name }} if {{ model_name_lower }}.{{ field.name }} else 'N/A' }}</td>
+                {% else %}
+                <td>{{ {{ model_name_lower }}.{{ field.name }} }}</td>
+                {% endif %}
+                {% endfor %}
+                <td>{{ {{ model_name_lower }}.created_at.strftime('%Y-%m-%d %H:%M') if {{ model_name_lower }}.created_at else 'N/A' }}</td>
+                <td>
+                    <a href="{{ url_for('{{ model_name_plural }}.show', id={{ model_name_lower }}.id) }}" class="btn btn-sm btn-info">View</a>
+                    <a href="{{ url_for('{{ model_name_plural }}.edit', id={{ model_name_lower }}.id) }}" class="btn btn-sm btn-warning">Edit</a>
+                    <form method="POST" action="{{ url_for('{{ model_name_plural }}.delete', id={{ model_name_lower }}.id) }}" style="display: inline;">
+                        {{ csrf_token() }}
+                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No {{ model_name_plural }} found. <a href="{{ url_for('{{ model_name_plural }}.new') }}">Create one</a>?</p>
+    {% endif %}
+</div>
+{% endblock %}{% endraw %}
