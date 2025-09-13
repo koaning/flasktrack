@@ -147,27 +147,59 @@ class Category:
             form_path = forms_dir / "product.py"
 
             # Replace Flask-WTF imports with mocks for testing
-            form_code_modified = (
-                form_code.replace(
-                    "from flask_wtf import FlaskForm", "FlaskForm = object"
-                )
-                .replace(
-                    "from wtforms import",
-                    "# Mock wtforms\n"
-                    + "\n".join(
-                        [
-                            "StringField = object",
-                            "FloatField = object",
-                            "SelectField = object",
-                            "SubmitField = object",
-                            "\nfrom wtforms import",
-                        ]
-                    ),
-                )
-                .replace(
-                    "from wtforms.validators import DataRequired, Length",
-                    "DataRequired = object\nLength = object",
-                )
+            # Create mock classes that accept arguments
+            form_code_modified = form_code
+
+            # First, replace all imports with mock definitions
+            import re
+
+            # Replace the multi-line wtforms import (handles the parenthesized import)
+            form_code_modified = re.sub(
+                r"from wtforms import \([^)]*\)",
+                """# Mock wtforms fields
+StringField = lambda *args, **kwargs: None
+TextAreaField = lambda *args, **kwargs: None
+FloatField = lambda *args, **kwargs: None
+IntegerField = lambda *args, **kwargs: None
+DecimalField = lambda *args, **kwargs: None
+BooleanField = lambda *args, **kwargs: None
+DateField = lambda *args, **kwargs: None
+DateTimeField = lambda *args, **kwargs: None
+TimeField = lambda *args, **kwargs: None
+SelectField = lambda *args, **kwargs: None
+SubmitField = lambda *args, **kwargs: None""",
+                form_code_modified,
+                flags=re.DOTALL,
+            )
+
+            # Also handle single-line wtforms imports if any
+            form_code_modified = re.sub(
+                r"from wtforms import [^\n]+(?!\()",
+                """# Mock wtforms fields (single line import)
+StringField = lambda *args, **kwargs: None
+TextAreaField = lambda *args, **kwargs: None
+FloatField = lambda *args, **kwargs: None
+IntegerField = lambda *args, **kwargs: None
+DecimalField = lambda *args, **kwargs: None
+BooleanField = lambda *args, **kwargs: None
+DateField = lambda *args, **kwargs: None
+DateTimeField = lambda *args, **kwargs: None
+TimeField = lambda *args, **kwargs: None
+SelectField = lambda *args, **kwargs: None
+SubmitField = lambda *args, **kwargs: None""",
+                form_code_modified,
+            )
+
+            # Replace validators import
+            form_code_modified = re.sub(
+                r"from wtforms\.validators import .*",
+                "DataRequired = lambda *args, **kwargs: None\nLength = lambda *args, **kwargs: None",
+                form_code_modified,
+            )
+
+            # Replace FlaskForm import
+            form_code_modified = form_code_modified.replace(
+                "from flask_wtf import FlaskForm", "class FlaskForm:\n    pass"
             )
 
             form_path.write_text(form_code_modified)
