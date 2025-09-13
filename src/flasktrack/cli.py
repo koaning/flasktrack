@@ -9,6 +9,7 @@ from rich.console import Console
 from rich.table import Table
 
 from flasktrack import __version__
+from flasktrack.scaffold import Scaffold
 from flasktrack.tracker import FlaskTracker
 from flasktrack.utils import add_user_to_app
 
@@ -229,6 +230,92 @@ def add_user(
 
 
 @app.command()
+def scaffold(
+    model_name: str = typer.Argument(..., help="Name of the model (e.g., Post)"),
+    fields: list[str] = typer.Argument(
+        ..., help="Field definitions (e.g., title:string content:text user:references)"
+    ),
+    skip_init: bool = typer.Option(
+        False, "--skip-init", help="Skip updating app/__init__.py"
+    ),
+):
+    """Generate a scaffold with model, controller, forms, and views.
+
+    Examples:
+        flasktrack scaffold Post title:string content:text
+        flasktrack scaffold Comment body:text post:references user:references
+        flasktrack scaffold Product name:string price:float available:boolean
+    """
+    console.print(f"[bold cyan]Creating scaffold for {model_name}...[/bold cyan]")
+
+    try:
+        # Create scaffold generator
+        scaffold_gen = Scaffold(model_name, fields)
+
+        # Get the current directory as the base path
+        base_path = Path.cwd()
+
+        # Check if we're in a Flask app directory
+        app_dir = base_path / "app"
+        if not app_dir.exists():
+            console.print(
+                "[bold red]Error:[/bold red] No 'app' directory found. "
+                "Make sure you're in a Flask application created with 'flasktrack init'."
+            )
+            raise typer.Exit(1)
+
+        # Generate and write all files
+        created_files = scaffold_gen.write_files(base_path)
+
+        # Display created files
+        for file_path in created_files:
+            relative_path = file_path.relative_to(base_path)
+            console.print(f"[bold green]✓[/bold green] Created {relative_path}")
+
+        # Update app/__init__.py unless skipped
+        if not skip_init:
+            app_init_path = app_dir / "__init__.py"
+            if scaffold_gen.update_app_init(app_init_path):
+                console.print("[bold green]✓[/bold green] Updated app/__init__.py")
+            else:
+                console.print(
+                    "[bold yellow]⚠[/bold yellow] Could not update app/__init__.py automatically. "
+                    "Please manually register the blueprint."
+                )
+
+        # Show next steps
+        console.print("\n[bold cyan]Next steps:[/bold cyan]")
+        console.print("1. Review the generated files")
+
+        # Check for references and show TODO notes
+        has_references = any(f["is_reference"] for f in scaffold_gen.fields)
+        if has_references:
+            console.print(
+                "2. Add relationships to referenced models (see TODOs in model file)"
+            )
+            console.print("3. Run database migrations")
+            console.print(f"4. Start server and visit /{scaffold_gen.name_plural}")
+        else:
+            console.print("2. Run database migrations")
+            console.print(f"3. Start server and visit /{scaffold_gen.name_plural}")
+
+        console.print("\n[bold green]Scaffold created successfully![/bold green] 🎉")
+
+    except ValueError as e:
+        console.print(f"[bold red]Error:[/bold red] {str(e)}")
+        raise typer.Exit(1) from e
+    except FileExistsError as e:
+        console.print(f"[bold red]Error:[/bold red] {str(e)}")
+        console.print(
+            "Some files already exist. Please remove them or use different names."
+        )
+        raise typer.Exit(1) from e
+    except Exception as e:
+        console.print(f"[bold red]Error creating scaffold:[/bold red] {str(e)}")
+        raise typer.Exit(1) from e
+
+
+@app.command()
 def version():
     """Show the version of FlaskTrack."""
     print(__version__)
@@ -250,6 +337,9 @@ def main(
             "  [bold green]init[/bold green]      Initialize a new Flask application"
         )
         console.print(
+            "  [bold cyan]scaffold[/bold cyan]  Generate model, controller, forms, and views"
+        )
+        console.print(
             "  [bold magenta]add-user[/bold magenta]  Add a user to a Flask application"
         )
         console.print(
@@ -259,6 +349,7 @@ def main(
         console.print("\n[bold cyan]Examples:[/bold cyan]")
         console.print('  flasktrack init "My New App"')
         console.print("  flasktrack init .  # Uses current directory name")
+        console.print("  flasktrack scaffold Post title:string content:text")
         console.print("  flasktrack add-user john john@example.com")
         console.print("  flasktrack routes app.py")
         console.print(

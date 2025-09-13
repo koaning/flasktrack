@@ -1,0 +1,41 @@
+{% raw %}<form method="POST">
+    {{ form.hidden_tag() }}
+    
+    {% for field in fields %}
+    <div class="form-group">
+        {% if field.is_reference %}
+        {{ form.{{ field.name }}_id.label }}
+        {{ form.{{ field.name }}_id(class="form-control") }}
+        {% if form.{{ field.name }}_id.errors %}
+            <div class="error">
+                {% for error in form.{{ field.name }}_id.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% else %}
+        {{ form.{{ field.name }}.label }}
+        {% if field.type == 'text' %}
+        {{ form.{{ field.name }}(class="form-control", rows=5) }}
+        {% elif field.type == 'boolean' %}
+        <div class="form-check">
+            {{ form.{{ field.name }}(class="form-check-input") }}
+        </div>
+        {% else %}
+        {{ form.{{ field.name }}(class="form-control") }}
+        {% endif %}
+        {% if form.{{ field.name }}.errors %}
+            <div class="error">
+                {% for error in form.{{ field.name }}.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% endif %}
+    </div>
+    {% endfor %}
+    
+    <div class="form-group">
+        {{ form.submit(class="btn btn-primary") }}
+    </div>
+</form>{% endraw %}

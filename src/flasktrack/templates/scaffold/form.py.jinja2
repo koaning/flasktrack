@@ -1,0 +1,57 @@
+"""{{ model_name }} forms."""
+
+from flask_wtf import FlaskForm
+from wtforms import (
+    BooleanField,
+    DateField,
+    DateTimeField,
+    DecimalField,
+    FloatField,
+    IntegerField,
+    SelectField,
+    StringField,
+    SubmitField,
+    TextAreaField,
+)
+from wtforms.validators import DataRequired, Length
+
+{% if has_references %}
+{% for field in fields %}
+{% if field.is_reference %}
+from app.models.{{ field.name }} import {{ field.referenced_model }}
+{% endif %}
+{% endfor %}
+{% endif %}
+
+
+class {{ model_name }}Form(FlaskForm):
+    """Form for creating and editing {{ model_name }}."""
+
+    {% for field in fields %}
+    {% if field.is_reference %}
+    {{ field.name }}_id = SelectField("{{ field.name|capitalize }}", coerce=int, validators=[DataRequired()])
+    {% elif field.type == 'string' %}
+    {{ field.name }} = {{ field.form_field_type }}("{{ field.name|capitalize }}", validators=[DataRequired(), Length(max=255)])
+    {% elif field.type == 'text' %}
+    {{ field.name }} = {{ field.form_field_type }}("{{ field.name|capitalize }}", validators=[DataRequired()])
+    {% elif field.type == 'boolean' %}
+    {{ field.name }} = {{ field.form_field_type }}("{{ field.name|capitalize }}")
+    {% else %}
+    {{ field.name }} = {{ field.form_field_type }}("{{ field.name|capitalize }}", validators=[DataRequired()])
+    {% endif %}
+    {% endfor %}
+    submit = SubmitField("Save")
+
+    {% if has_references %}
+    def __init__(self, *args, **kwargs):
+        """Initialize form and populate reference field choices."""
+        super().__init__(*args, **kwargs)
+        {% for field in fields %}
+        {% if field.is_reference %}
+        self.{{ field.name }}_id.choices = [
+            ({{ field.name[0] }}.id, str({{ field.name[0] }}))
+            for {{ field.name[0] }} in {{ field.referenced_model }}.query.all()
+        ]
+        {% endif %}
+        {% endfor %}
+    {% endif %}

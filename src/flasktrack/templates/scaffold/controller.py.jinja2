@@ -1,0 +1,98 @@
+"""{{ model_name }} blueprint routes."""
+
+from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask_login import login_required
+
+from app import db
+from app.forms.{{ model_name_lower }} import {{ model_name }}Form
+from app.models.{{ model_name_lower }} import {{ model_name }}
+{% if has_references %}
+{% for field in fields %}
+{% if field.is_reference %}
+from app.models.{{ field.name }} import {{ field.referenced_model }}
+{% endif %}
+{% endfor %}
+{% endif %}
+
+{{ model_name_plural }}_bp = Blueprint("{{ model_name_plural }}", __name__)
+
+
+@{{ model_name_plural }}_bp.route("/")
+def index():
+    """List all {{ model_name_plural }}."""
+    {{ model_name_plural }} = {{ model_name }}.query.all()
+    return render_template("{{ model_name_plural }}/index.html", {{ model_name_plural }}={{ model_name_plural }})
+
+
+@{{ model_name_plural }}_bp.route("/<int:id>")
+def show(id):
+    """Show a specific {{ model_name_lower }}."""
+    {{ model_name_lower }} = {{ model_name }}.query.get_or_404(id)
+    return render_template("{{ model_name_plural }}/show.html", {{ model_name_lower }}={{ model_name_lower }})
+
+
+@{{ model_name_plural }}_bp.route("/new", methods=["GET", "POST"])
+@login_required
+def new():
+    """Create a new {{ model_name_lower }}."""
+    form = {{ model_name }}Form()
+    
+    if form.validate_on_submit():
+        {{ model_name_lower }} = {{ model_name }}(
+            {% for field in fields %}
+            {% if not field.is_reference %}
+            {{ field.name }}=form.{{ field.name }}.data,
+            {% else %}
+            {{ field.name }}_id=form.{{ field.name }}_id.data,
+            {% endif %}
+            {% endfor %}
+        )
+        db.session.add({{ model_name_lower }})
+        db.session.commit()
+        flash("{{ model_name }} created successfully!", "success")
+        return redirect(url_for("{{ model_name_plural }}.show", id={{ model_name_lower }}.id))
+    
+    return render_template("{{ model_name_plural }}/new.html", form=form)
+
+
+@{{ model_name_plural }}_bp.route("/<int:id>/edit", methods=["GET", "POST"])
+@login_required
+def edit(id):
+    """Edit an existing {{ model_name_lower }}."""
+    {{ model_name_lower }} = {{ model_name }}.query.get_or_404(id)
+    form = {{ model_name }}Form(obj={{ model_name_lower }})
+    
+    if form.validate_on_submit():
+        {% for field in fields %}
+        {% if not field.is_reference %}
+        {{ model_name_lower }}.{{ field.name }} = form.{{ field.name }}.data
+        {% else %}
+        {{ model_name_lower }}.{{ field.name }}_id = form.{{ field.name }}_id.data
+        {% endif %}
+        {% endfor %}
+        db.session.commit()
+        flash("{{ model_name }} updated successfully!", "success")
+        return redirect(url_for("{{ model_name_plural }}.show", id={{ model_name_lower }}.id))
+    
+    {% if has_references %}
+    # Pre-populate reference fields
+    {% for field in fields %}
+    {% if field.is_reference %}
+    if request.method == "GET":
+        form.{{ field.name }}_id.data = {{ model_name_lower }}.{{ field.name }}_id
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+    
+    return render_template("{{ model_name_plural }}/edit.html", form=form, {{ model_name_lower }}={{ model_name_lower }})
+
+
+@{{ model_name_plural }}_bp.route("/<int:id>/delete", methods=["POST"])
+@login_required
+def delete(id):
+    """Delete a {{ model_name_lower }}."""
+    {{ model_name_lower }} = {{ model_name }}.query.get_or_404(id)
+    db.session.delete({{ model_name_lower }})
+    db.session.commit()
+    flash("{{ model_name }} deleted successfully!", "success")
+    return redirect(url_for("{{ model_name_plural }}.index"))
