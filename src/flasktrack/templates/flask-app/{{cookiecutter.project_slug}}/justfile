@@ -11,63 +11,66 @@ install:
     @echo "📦 Compiling and installing dependencies with uv..."
     uv pip compile requirements-in.txt -o requirements.txt
     uv pip compile requirements-dev-in.txt -o requirements-dev.txt
-    uv pip install -r requirements.txt
-    uv pip install -r requirements-dev.txt
+    uv pip sync requirements.txt requirements-dev.txt
     @echo "📁 Creating data directory..."
     mkdir -p data
     @echo "🗄️  Setting up database..."
-    uv run flask db init
-    uv run flask db migrate -m "Initial migration"
-    uv run flask db upgrade
+    if [ ! -d "migrations" ]; then \
+        uv run --no-project flask db init && \
+        uv run --no-project flask db migrate -m "Initial migration"; \
+    else \
+        echo "  Migrations folder already exists, skipping init..."; \
+    fi
+    uv run --no-project flask db upgrade
     @echo "✅ Development environment ready!"
 
 # Run the development server
 run:
-    uv run flask run --debug --host=127.0.0.1 --port={{ cookiecutter.flask_port }}
+    uv run --no-project flask run --debug --host=127.0.0.1 --port={{ cookiecutter.flask_port }}
 
 # Run tests
 test:
-    uv run pytest tests/ -v
+    uv run --no-project pytest tests/ -v
 
 # Run tests with coverage
 test-cov:
-    uv run pytest tests/ --cov=app --cov-report=html --cov-report=term
+    uv run --no-project pytest tests/ --cov=app --cov-report=html --cov-report=term
 
 # Run linting
 lint:
-    uv run ruff check app/ tests/
+    uv run --no-project ruff check app/ tests/
 
 # Format code
 format:
-    uv run ruff format app/ tests/
+    uv run --no-project ruff format app/ tests/
 
 # Check code formatting
 format-check:
-    uv run ruff format --check app/ tests/
+    uv run --no-project ruff format --check app/ tests/
 
 # Fix all issues (lint + format)
 fix:
-    uv run ruff check --fix app/ tests/
-    uv run ruff format app/ tests/
+    uv run --no-project ruff check --fix app/ tests/
+    uv run --no-project ruff format app/ tests/
 
 # Run all checks (format check and lint)
 check: format-check lint
 
 # Create a new database migration
 migrate message:
-    uv run flask db migrate -m "{% raw %}{{message}}{% endraw %}"
+    uv run --no-project flask db migrate -m "{% raw %}{{message}}{% endraw %}"
 
 # Apply database migrations
 upgrade:
-    uv run flask db upgrade
+    uv run --no-project flask db upgrade
 
 # Downgrade database by one migration
 downgrade:
-    uv run flask db downgrade
+    uv run --no-project flask db downgrade
 
 # Open Flask shell with app context
 shell:
-    uv run flask shell
+    uv run --no-project flask shell
 
 # Clean up Python cache files
 clean:
@@ -84,15 +87,15 @@ clean:
 # Reset database (drop and recreate)
 reset-db:
     rm -f data/*.db
-    uv run flask db upgrade
+    uv run --no-project flask db upgrade
 
 # Run the app in production mode
 prod:
-    uv run gunicorn -w 4 -b 127.0.0.1:{{ cookiecutter.flask_port }} "app:create_app()"
+    uv run --no-project gunicorn -w 4 -b 127.0.0.1:{{ cookiecutter.flask_port }} "app:create_app()"
 
 # Check for security vulnerabilities
 security:
-    uv run pip-audit
+    uv run --no-project pip-audit
 
 # Update dependencies
 update-deps:
