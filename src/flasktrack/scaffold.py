@@ -24,6 +24,21 @@ class Scaffold:
         "belongs_to": "reference",  # Alias for references
     }
 
+    # Database-specific types that should NOT be used (for validation)
+    PROHIBITED_TYPES = {
+        "json",
+        "jsonb",
+        "array",
+        "uuid",
+        "inet",
+        "cidr",
+        "macaddr",
+        "tsvector",
+        "interval",
+        "hstore",
+        "ltree",
+    }
+
     # Form field mappings
     FORM_FIELD_MAPPINGS = {
         "string": "StringField",
@@ -86,6 +101,14 @@ class Scaffold:
                     if not referenced_model:
                         # Infer model from field name (e.g., 'user' -> 'User')
                         referenced_model = name.capitalize()
+
+            # Check for prohibited database-specific types
+            if field_type in self.PROHIBITED_TYPES:
+                raise ValueError(
+                    f"Database-specific type '{field_type}' is not allowed. "
+                    f"FlaskTrack models must be compatible with both SQLite and PostgreSQL. "
+                    f"Use portable alternatives: json→text, uuid→string, array→related table"
+                )
 
             if field_type not in self.TYPE_MAPPINGS:
                 raise ValueError(
