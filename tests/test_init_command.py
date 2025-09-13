@@ -135,7 +135,7 @@ def test_init_command_file_contents():
         assert "test:" in justfile
         assert "uv pip compile" in justfile
         assert "uv pip sync" in justfile
-        assert "uv run flask" in justfile
+        assert "uv run --no-project flask" in justfile
         assert "mkdir -p data" in justfile
         assert "ruff format" in justfile
         assert "ruff check" in justfile
