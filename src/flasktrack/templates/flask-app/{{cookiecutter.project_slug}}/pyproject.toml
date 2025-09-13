@@ -1,0 +1,56 @@
+[project]
+name = "{{ cookiecutter.project_slug }}"
+version = "0.1.0"
+description = "{{ cookiecutter.project_name }} - A Flask application"
+requires-python = ">=3.10"
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+    "E",     # pycodestyle errors
+    "F",     # pyflakes
+    "W",     # pycodestyle warnings
+    "I",     # isort
+    "N",     # pep8-naming
+    "UP",    # pyupgrade
+    "B",     # flake8-bugbear
+    "C4",    # flake8-comprehensions
+    "SIM",   # flake8-simplify
+    "TID",   # flake8-tidy-imports (for banned imports)
+]
+ignore = [
+    "E501",  # line too long (handled by formatter)
+    "E402",  # module level import not at top of file (needed for Flask app)
+    "B008",  # do not perform function calls in argument defaults
+]
+
+[tool.ruff.lint.flake8-tidy-imports]
+# Ban database dialect-specific imports to ensure SQLite/PostgreSQL portability
+banned-module-level-imports = [
+    "sqlalchemy.dialects.postgresql",
+    "sqlalchemy.dialects.mysql", 
+    "sqlalchemy.dialects.oracle",
+    "sqlalchemy.dialects.mssql",
+    "sqlalchemy.dialects.sqlite",
+    "sqlalchemy.dialects.sybase",
+    "sqlalchemy.dialects.firebird",
+]
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+# Ban dialect-specific and non-portable SQLAlchemy types
+"sqlalchemy.dialects".msg = "Use only portable SQLAlchemy types from db.* (e.g., db.String, db.Integer, db.Text)"
+"sqlalchemy.types.JSON".msg = "Use db.Text with JSON serialization for database portability"
+"sqlalchemy.types.ARRAY".msg = "Use a separate related table instead of ARRAY for database portability"
+"sqlalchemy.types.UUID".msg = "Use db.String(36) with UUID generation for database portability"
+
+[tool.black]
+line-length = 88
+target-version = ["py310", "py311", "py312"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"

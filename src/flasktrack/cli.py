@@ -335,26 +335,16 @@ def main(
     if version:
         print(__version__)
         raise typer.Exit()
-    
+
     if ctx.invoked_subcommand is None:
-        console.print(
-            "FlaskTrack - A Rails-inspired Flask framework with scaffolding"
-        )
+        console.print("FlaskTrack - A Rails-inspired Flask framework with scaffolding")
         console.print(f"Version: {__version__}\n")
         console.print("Usage: flasktrack [COMMAND]")
         console.print("\nCommands:")
-        console.print(
-            "  init      Initialize a new Flask application"
-        )
-        console.print(
-            "  scaffold  Generate model, controller, forms, and views"
-        )
-        console.print(
-            "  add-user  Add a user to a Flask application"
-        )
-        console.print(
-            "  routes    List all routes in a Flask application"
-        )
+        console.print("  init        Initialize a new Flask application")
+        console.print("  scaffold    Generate model, controller, forms, and views")
+        console.print("  add-user    Add a user to a Flask application")
+        console.print("  routes    List all routes in a Flask application")
         console.print("  version   Show version information")
         console.print("\nExamples:")
         console.print('  flasktrack init "My New App"')
