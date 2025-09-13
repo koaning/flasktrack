@@ -16,7 +16,6 @@ from wtforms import (
 from wtforms.validators import DataRequired, Length
 
 {% if has_references %}
-from app.models.{{ model_name_lower }} import {{ model_name }}
 {% for field in fields %}
 {% if field.is_reference %}
 from app.models.{{ field.name }} import {{ field.referenced_model }}
