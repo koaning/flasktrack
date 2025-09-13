@@ -161,9 +161,9 @@ def init(
 
 
 @app.command()
-def add_user(
-    username: str = typer.Argument(..., help="Username for the new user"),
-    email: str = typer.Argument(..., help="Email address for the new user"),
+def add_admin(
+    username: str = typer.Argument(..., help="Username for the new admin"),
+    email: str = typer.Argument(..., help="Email address for the new admin"),
     password: str | None = typer.Option(
         None,
         "--password",
@@ -177,8 +177,8 @@ def add_user(
         help="Path to the Flask application directory",
     ),
 ):
-    """Add a new user to a Flask application created with 'ft init'."""
-    console.print(f"[bold cyan]Adding user:[/bold cyan] {username}")
+    """Add a new admin user to a Flask application created with 'ft init'."""
+    console.print(f"[bold cyan]Adding admin user:[/bold cyan] {username}")
 
     # Check if the app_path contains a Flask app
     app_file = app_path / "app.py"
@@ -205,27 +205,32 @@ def add_user(
         password = typer.prompt("Password", hide_input=True, confirmation_prompt=True)
 
     try:
-        # Add the user to the database
+        # Add the admin user to the database
         success = add_user_to_app(
-            app_path=app_path, username=username, email=email, password=password
+            app_path=app_path,
+            username=username,
+            email=email,
+            password=password,
+            is_admin=True,
         )
 
         if success:
             console.print(
-                f"[bold green]✓[/bold green] User '{username}' added successfully!"
+                f"[bold green]✓[/bold green] Admin user '{username}' added successfully!"
             )
             console.print(f"  Email: {email}")
+            console.print("  Role: Administrator")
             console.print(
-                "\n[bold cyan]User can now log in to the application![/bold cyan]"
+                "\n[bold cyan]Admin can now log in to the application with full privileges![/bold cyan]"
             )
         else:
             console.print(
-                "[bold red]Error:[/bold red] Failed to add user. User might already exist."
+                "[bold red]Error:[/bold red] Failed to add admin. User might already exist."
             )
             raise typer.Exit(1)
 
     except Exception as e:
-        console.print(f"[bold red]Error adding user:[/bold red] {str(e)}")
+        console.print(f"[bold red]Error adding admin:[/bold red] {str(e)}")
         raise typer.Exit(1) from e
 
 
@@ -335,32 +340,22 @@ def main(
     if version:
         print(__version__)
         raise typer.Exit()
-    
+
     if ctx.invoked_subcommand is None:
-        console.print(
-            "FlaskTrack - A Rails-inspired Flask framework with scaffolding"
-        )
+        console.print("FlaskTrack - A Rails-inspired Flask framework with scaffolding")
         console.print(f"Version: {__version__}\n")
         console.print("Usage: flasktrack [COMMAND]")
         console.print("\nCommands:")
-        console.print(
-            "  init      Initialize a new Flask application"
-        )
-        console.print(
-            "  scaffold  Generate model, controller, forms, and views"
-        )
-        console.print(
-            "  add-user  Add a user to a Flask application"
-        )
-        console.print(
-            "  routes    List all routes in a Flask application"
-        )
+        console.print("  init      Initialize a new Flask application")
+        console.print("  scaffold  Generate model, controller, forms, and views")
+        console.print("  add-admin Add an admin user to a Flask application")
+        console.print("  routes    List all routes in a Flask application")
         console.print("  version   Show version information")
         console.print("\nExamples:")
         console.print('  flasktrack init "My New App"')
         console.print("  flasktrack init .  # Uses current directory name")
         console.print("  flasktrack scaffold Post title:string content:text")
-        console.print("  flasktrack add-user john john@example.com")
+        console.print("  flasktrack add-admin john john@example.com")
         console.print("  flasktrack routes app.py")
         console.print(
             "\nRun 'flasktrack [COMMAND] --help' for more information on a command."
