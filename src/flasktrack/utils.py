@@ -67,7 +67,9 @@ def validate_flask_app(app_path: Path) -> bool:
     return False
 
 
-def add_user_to_app(app_path: Path, username: str, email: str, password: str) -> bool:
+def add_user_to_app(
+    app_path: Path, username: str, email: str, password: str, is_admin: bool = False
+) -> bool:
     """Add a new user to a Flask application database.
 
     Args:
@@ -75,6 +77,7 @@ def add_user_to_app(app_path: Path, username: str, email: str, password: str) ->
         username: Username for the new user
         email: Email address for the new user
         password: Password for the new user
+        is_admin: Whether the user should be an admin (default: False)
 
     Returns:
         True if user was added successfully, False otherwise
@@ -117,12 +120,14 @@ with app.app_context():
     # Create new user
     user = User(username="{username}", email="{email}")
     user.set_password("{password}")
+    user.is_admin = {is_admin}
 
     # Add and commit
     db.session.add(user)
     db.session.commit()
 
-    print(f"User '{{user.username}}' created successfully")
+    user_type = "Admin" if user.is_admin else "User"
+    print(f"{{user_type}} '{{user.username}}' created successfully")
 '''
 
     # Write script to temporary file and execute it
