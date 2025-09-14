@@ -80,6 +80,23 @@ class ModelRegistry:
 
         return self.models
 
+    def get_all_models_json(self):
+        """Get all discovered models as a JSON string."""
+        import json
+
+        if not self._discovered:
+            self.discover_models()
+
+        # Create a serializable version of the models dictionary
+        serializable_models = {
+            name: {
+                "name": info["name"],
+                "tablename": info["tablename"],
+            }
+            for name, info in self.models.items()
+        }
+        return json.dumps(serializable_models)
+
     def get_model_columns(self, model):
         """Get column information for a model."""
         mapper = sqla_inspect(model)

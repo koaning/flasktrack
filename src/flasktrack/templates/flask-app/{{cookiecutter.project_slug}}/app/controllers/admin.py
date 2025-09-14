@@ -11,6 +11,12 @@ from app.decorators import admin_required
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
 
+@admin_bp.context_processor
+def inject_models_json():
+    """Inject models as JSON into all admin templates."""
+    return {"models_json": model_registry.get_all_models_json()}
+
+
 @admin_bp.route("/")
 @admin_required
 def dashboard():

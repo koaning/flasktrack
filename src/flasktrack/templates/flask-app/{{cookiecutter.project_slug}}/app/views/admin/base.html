@@ -46,6 +46,163 @@
         {% block content %}{% endblock %}
     </main>
     
-    {% block scripts %}{% endblock %}
+    <div id="command-palette" class="fixed inset-0 bg-gray-500 bg-opacity-75 hidden" style="z-index: 50;">
+        <div class="flex items-start justify-center min-h-screen pt-24">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4">
+                <div class="p-4">
+                    <input type="text" id="command-input" placeholder="Search for models..." class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <ul id="command-list" class="max-h-96 overflow-y-auto">
+                    <!-- Items will be injected by JavaScript -->
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    {% block scripts %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const commandPalette = document.getElementById('command-palette');
+            const commandInput = document.getElementById('command-input');
+            const commandList = document.getElementById('command-list');
+            
+            const models = JSON.parse('{{ models_json|safe }}');
+            let items = [];
+            items.push({
+                name: "Go to Overview",
+                url: "{{ url_for('admin.dashboard') }}"
+            });
+            for (const key in models) {
+                const model = models[key];
+                // Add "View All" option
+                items.push({
+                    name: `View all ${model.name}`,
+                    url: `{{ url_for('admin.model_list', model_name='__model__') }}`.replace('__model__', key)
+                });
+                // Add "Create New" option
+                items.push({
+                    name: `Create new ${model.name}`,
+                    url: `{{ url_for('admin.model_create', model_name='__model__') }}`.replace('__model__', key)
+                });
+            }
+
+            let selectedIndex = -1;
+
+            function fuzzyMatch(query, text) {
+                const queryLower = query.toLowerCase();
+                const textLower = text.toLowerCase();
+                let queryIndex = 0;
+                let textIndex = 0;
+                const indices = [];
+
+                while (queryIndex < queryLower.length && textIndex < textLower.length) {
+                    if (queryLower[queryIndex] === textLower[textIndex]) {
+                        indices.push(textIndex);
+                        queryIndex++;
+                    }
+                    textIndex++;
+                }
+
+                return {
+                    isMatch: queryIndex === queryLower.length,
+                    indices: indices
+                };
+            }
+
+            function renderList(filteredItems) {
+                commandList.innerHTML = '';
+                const query = commandInput.value;
+                filteredItems.forEach((item, index) => {
+                    const li = document.createElement('li');
+                    const { isMatch, indices } = fuzzyMatch(query, item.name);
+                    
+                    let highlightedName = '';
+                    if (isMatch && query.length > 0) {
+                        let lastIndex = 0;
+                        indices.forEach(matchIndex => {
+                            highlightedName += item.name.substring(lastIndex, matchIndex);
+                            highlightedName += `<strong class="font-bold">${item.name[matchIndex]}</strong>`;
+                            lastIndex = matchIndex + 1;
+                        });
+                        highlightedName += item.name.substring(lastIndex);
+                    } else {
+                        highlightedName = item.name;
+                    }
+
+                    li.innerHTML = `<a href="${item.url}" class="block px-4 py-3 text-gray-700 hover:bg-gray-100">${highlightedName}</a>`;
+                    if (index === selectedIndex) {
+                        li.firstElementChild.classList.add('bg-gray-100');
+                    }
+                    commandList.appendChild(li);
+                });
+            }
+
+            function updateSelection() {
+                const listItems = commandList.querySelectorAll('li a');
+                listItems.forEach((item, index) => {
+                    if (index === selectedIndex) {
+                        item.classList.add('bg-gray-100');
+                    } else {
+                        item.classList.remove('bg-gray-100');
+                    }
+                });
+            }
+
+            commandInput.addEventListener('input', () => {
+                const query = commandInput.value;
+                const filteredItems = items.filter(item => fuzzyMatch(query, item.name).isMatch);
+                selectedIndex = 0;
+                renderList(filteredItems);
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+                    e.preventDefault();
+                    commandPalette.classList.toggle('hidden');
+                    if (!commandPalette.classList.contains('hidden')) {
+                        commandInput.value = '';
+                        commandInput.focus();
+                        renderList(items);
+                    }
+                }
+
+                if (!commandPalette.classList.contains('hidden')) {
+                    if (e.key === 'Escape') {
+                        commandPalette.classList.add('hidden');
+                    }
+
+                    const listItems = commandList.querySelectorAll('li');
+                    if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        if (selectedIndex < listItems.length - 1) {
+                            selectedIndex++;
+                            updateSelection();
+                        }
+                    } else if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        if (selectedIndex > 0) {
+                            selectedIndex--;
+                            updateSelection();
+                        }
+                    } else if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (selectedIndex !== -1) {
+                            const selectedLink = listItems[selectedIndex].querySelector('a');
+                            if (selectedLink) {
+                                window.location.href = selectedLink.href;
+                            }
+                        }
+                    }
+                }
+            });
+
+            commandPalette.addEventListener('click', (e) => {
+                if (e.target === commandPalette) {
+                    commandPalette.classList.add('hidden');
+                }
+            });
+        });
+    </script>
+    {% endblock %}
 </body>
 </html>{% endraw %}
