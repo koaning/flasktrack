@@ -1,40 +1,36 @@
 {% raw %}{% extends "admin/base.html" %}
 
 {% block content %}
-<div class="mb-4">
-    <h2 class="h4 mb-1">Dashboard</h2>
-    <p class="text-muted">Manage your application data</p>
+<div class="mb-8">
+    <h2 class="text-2xl font-bold text-gray-900">Dashboard</h2>
+    <p class="text-gray-600">Manage your application data</p>
 </div>
 
 {% if models %}
-    <div class="row g-3">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {% for model_name, model_info in models.items() %}
-        <div class="col-lg-4 col-md-6">
-            <div class="model-card">
-                <div class="card-body">
-                    <h5 class="card-title">{{ model_info.name }}</h5>
-                    
-                    <div class="mb-3">
-                        <div class="model-count">{{ model_info.count }}</div>
-                        <div class="model-count-label">Records</div>
-                    </div>
-                    
-                    <div class="d-grid gap-2">
-                        <a href="{{ url_for('admin.model_list', model_name=model_name) }}" class="btn btn-admin">
-                            View All
-                        </a>
-                        <a href="{{ url_for('admin.model_create', model_name=model_name) }}" class="btn btn-admin-secondary">
-                            Add New
-                        </a>
-                    </div>
-                </div>
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ model_info.name }}</h3>
+            
+            <div class="mb-4">
+                <div class="text-3xl font-bold text-gray-900">{{ model_info.count }}</div>
+                <div class="text-sm text-gray-500">Records</div>
+            </div>
+            
+            <div class="space-y-2">
+                <a href="{{ url_for('admin.model_list', model_name=model_name) }}" class="block w-full bg-gray-700 text-white text-center py-2 px-4 rounded hover:bg-gray-800">
+                    View All
+                </a>
+                <a href="{{ url_for('admin.model_create', model_name=model_name) }}" class="block w-full border border-gray-300 text-gray-700 text-center py-2 px-4 rounded hover:bg-gray-50">
+                    Add New
+                </a>
             </div>
         </div>
         {% endfor %}
     </div>
 {% else %}
-    <div class="alert alert-info" role="alert">
-        No models found. Create models in your <code>app/models</code> directory and they will automatically appear here.
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <p class="text-blue-800">No models found. Create models in your <code class="bg-blue-100 px-1 rounded">app/models</code> directory and they will automatically appear here.</p>
     </div>
 {% endif %}
 {% endblock %}{% endraw %}

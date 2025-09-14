@@ -3,21 +3,27 @@
 {% block title %}Dashboard - {{ super() }}{% endblock %}
 
 {% block content %}
-<div class="dashboard">
-    <h1>Dashboard</h1>
-    <p>Welcome back, {{ current_user.username }}!</p>
-    
-    <div class="card">
-        <h2>Your Account</h2>
-        <dl>
-            <dt>Username:</dt>
-            <dd>{{ current_user.username }}</dd>
+<div class="max-w-4xl mx-auto">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
+    <p class="text-gray-600 mb-8">Welcome back, {{ current_user.username }}!</p>
+
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Your Account</h2>
+        <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+            <div>
+                <dt class="text-sm font-medium text-gray-500">Username</dt>
+                <dd class="mt-1 text-sm text-gray-900">{{ current_user.username }}</dd>
+            </div>
             
-            <dt>Email:</dt>
-            <dd>{{ current_user.email }}</dd>
+            <div>
+                <dt class="text-sm font-medium text-gray-500">Email</dt>
+                <dd class="mt-1 text-sm text-gray-900">{{ current_user.email }}</dd>
+            </div>
             
-            <dt>Member Since:</dt>
-            <dd>{{ current_user.created_at.strftime('%B %d, %Y') }}</dd>
+            <div>
+                <dt class="text-sm font-medium text-gray-500">Member Since</dt>
+                <dd class="mt-1 text-sm text-gray-900">{{ current_user.created_at.strftime('%B %d, %Y') }}</dd>
+            </div>
         </dl>
     </div>
 </div>
