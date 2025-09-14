@@ -1,7 +1,7 @@
 """Admin blueprint for managing models."""
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
-from sqlalchemy import func
+from sqlalchemy import String, func, or_
 
 from app import db
 from app.admin.forms import generate_form_class
@@ -47,12 +47,24 @@ def model_list(model_name):
         flash(f"Model '{model_name}' not found.", "danger")
         return redirect(url_for("admin.dashboard"))
 
-    # Get pagination parameters
+    # Get pagination and search parameters
     page = request.args.get("page", 1, type=int)
     per_page = request.args.get("per_page", 25, type=int)
+    search_query = request.args.get("search", "")
+
+    # Base query
+    query = db.session.query(model_class)
+
+    # Apply search filter if a query is provided
+    if search_query:
+        search_filters = []
+        for column in model_class.__table__.columns:
+            if isinstance(column.type, String):
+                search_filters.append(column.ilike(f"%{search_query}%"))
+        if search_filters:
+            query = query.filter(or_(*search_filters))
 
     # Query with pagination
-    query = db.session.query(model_class)
     pagination = db.paginate(
         query, page=page, per_page=per_page, error_out=False, max_per_page=100
     )
@@ -67,6 +79,7 @@ def model_list(model_name):
         items=pagination.items,
         pagination=pagination,
         columns=columns,
+        search_query=search_query,
     )
 
 
