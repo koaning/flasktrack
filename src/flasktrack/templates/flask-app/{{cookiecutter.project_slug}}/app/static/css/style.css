@@ -56,6 +56,23 @@ body {
     color: #007bff;
 }
 
+.admin-menu-icon {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem;
+    border-radius: 0.25rem;
+    transition: background-color 0.3s;
+}
+
+.admin-menu-icon:hover {
+    background-color: rgba(0, 123, 255, 0.1);
+}
+
+.admin-menu-icon svg {
+    width: 24px;
+    height: 24px;
+}
+
 /* Main content */
 main {
     flex: 1;

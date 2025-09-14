@@ -39,11 +39,13 @@ def create_app(config_name="development"):
     login_manager.login_message_category = "info"
 
     # Register blueprints
+    from app.controllers.admin import admin_bp
     from app.controllers.auth import auth_bp
     from app.controllers.main import main_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp, url_prefix="/auth")
+    app.register_blueprint(admin_bp)
 
     # Register error handlers
     from app.controllers import errors
