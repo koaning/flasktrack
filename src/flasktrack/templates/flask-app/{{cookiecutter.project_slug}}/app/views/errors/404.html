@@ -3,10 +3,10 @@
 {% block title %}Page Not Found - {{ super() }}{% endblock %}
 
 {% block content %}
-<div class="error-page">
-    <h1>404</h1>
-    <h2>Page Not Found</h2>
-    <p>The page you are looking for does not exist.</p>
-    <a href="{{ url_for('main.index') }}" class="btn btn-primary">Go Home</a>
+<div class="text-center py-16">
+    <h1 class="text-9xl font-bold text-gray-200">404</h1>
+    <h2 class="text-3xl font-semibold text-gray-900 mt-4">Page Not Found</h2>
+    <p class="text-gray-600 mt-2 mb-8">The page you are looking for does not exist.</p>
+    <a href="{{ url_for('main.index') }}" class="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 inline-block">Go Home</a>
 </div>
 {% endblock %}{% endraw %}

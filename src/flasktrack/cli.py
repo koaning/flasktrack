@@ -356,6 +356,7 @@ def main(
         console.print("  flasktrack init .  # Uses current directory name")
         console.print("  flasktrack scaffold Post title:string content:text")
         console.print("  flasktrack add-admin john john@example.com")
+        console.print("  flasktrack add-admin jane jane@example.com --password secret123")
         console.print("  flasktrack routes app.py")
         console.print(
             "\nRun 'flasktrack [COMMAND] --help' for more information on a command."

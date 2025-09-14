@@ -4,39 +4,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% raw %}{% block title %}{% endraw %}{{ cookiecutter.project_name }}{% raw %}{% endblock %}{% endraw %}</title>
-    {% raw %}<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% raw %}<script src="https://cdn.tailwindcss.com"></script>
     {% block extra_css %}{% endblock %}{% endraw %}
 </head>
-<body>
-    <nav class="navbar">
-        <div class="container">
-            {% raw %}<a href="{{ url_for('main.index') }}" class="navbar-brand">{% endraw %}{{ cookiecutter.project_name }}{% raw %}</a>{% endraw %}
-            <div class="navbar-menu">
-                {% raw %}{% if current_user.is_authenticated %}
-                    <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
-                    <a href="{{ url_for('auth.logout') }}">Logout ({{ current_user.username }})</a>
-                    {% if current_user.is_admin %}
-                        <a href="{{ url_for('admin.dashboard') }}" class="admin-menu-icon" title="Admin Panel">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="3" y1="12" x2="21" y2="12"></line>
-                                <line x1="3" y1="6" x2="21" y2="6"></line>
-                                <line x1="3" y1="18" x2="21" y2="18"></line>
-                            </svg>
-                        </a>
-                    {% endif %}
-                {% else %}
-                    <a href="{{ url_for('auth.login') }}">Login</a>
-                    <a href="{{ url_for('auth.register') }}">Register</a>
-                {% endif %}{% endraw %}
+<body class="bg-gray-50 min-h-screen flex flex-col">
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    {% raw %}<a href="{{ url_for('main.index') }}" class="text-xl font-semibold text-gray-900">{% endraw %}{{ cookiecutter.project_name }}{% raw %}</a>{% endraw %}
+                </div>
+                <div class="flex items-center space-x-4">
+                    {% raw %}{% if current_user.is_authenticated %}
+                        <a href="{{ url_for('main.dashboard') }}" class="text-gray-600 hover:text-gray-900">Dashboard</a>
+                        {% if current_user.is_admin %}
+                            <a href="{{ url_for('admin.dashboard') }}" class="text-gray-600 hover:text-gray-900">Admin</a>
+                        {% endif %}
+                        <div class="relative group">
+                            <button class="flex items-center text-gray-600 hover:text-gray-900">
+                                {{ current_user.username }}
+                                <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
+                            <div class="absolute right-0 w-48 mt-2 py-2 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                                <a href="{{ url_for('auth.logout') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="{{ url_for('auth.login') }}" class="text-gray-600 hover:text-gray-900">Login</a>
+                        <a href="{{ url_for('auth.register') }}" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Register</a>
+                    {% endif %}{% endraw %}
+                </div>
             </div>
         </div>
     </nav>
 
-    <main class="container">
+    <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         {% raw %}{% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">
+                    <div class="mb-4 p-4 rounded-md {% if category == 'error' or category == 'danger' %}bg-red-50 text-red-800 border border-red-200{% elif category == 'success' %}bg-green-50 text-green-800 border border-green-200{% else %}bg-blue-50 text-blue-800 border border-blue-200{% endif %}">
                         {{ message }}
                     </div>
                 {% endfor %}
@@ -46,9 +54,9 @@
         {% block content %}{% endblock %}{% endraw %}
     </main>
 
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; {{ cookiecutter.project_name }} - Built with FlaskTrack</p>
+    <footer class="bg-white border-t border-gray-200 mt-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <p class="text-center text-gray-500 text-sm">&copy; {{ cookiecutter.project_name }} - Built with FlaskTrack</p>
         </div>
     </footer>
 

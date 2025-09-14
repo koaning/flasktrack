@@ -3,19 +3,17 @@
 {% block title %}Home - {{ super() }}{% endblock %}
 
 {% block content %}{% endraw %}
-<div class="hero">
-    <h1>Welcome to {{ cookiecutter.project_name }}</h1>
-    <p>{{ cookiecutter.description }}</p>
-    
+<div class="text-center py-16">
+    <h1 class="text-4xl font-bold text-gray-900 mb-4">Welcome to {{ cookiecutter.project_name }}</h1>
+    <p class="text-xl text-gray-600 mb-8">{{ cookiecutter.description }}</p>
+
     {% raw %}{% if not current_user.is_authenticated %}
-        <div class="cta">
-            <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Get Started</a>
-            <a href="{{ url_for('auth.login') }}" class="btn btn-secondary">Sign In</a>
+        <div class="space-x-4">
+            <a href="{{ url_for('auth.register') }}" class="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 inline-block">Get Started</a>
+            <a href="{{ url_for('auth.login') }}" class="bg-gray-200 text-gray-700 px-6 py-3 rounded-md hover:bg-gray-300 inline-block">Sign In</a>
         </div>
     {% else %}
-        <div class="cta">
-            <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary">Go to Dashboard</a>
-        </div>
+        <a href="{{ url_for('main.dashboard') }}" class="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 inline-block">Go to Dashboard</a>
     {% endif %}
 </div>
 {% endblock %}{% endraw %}
