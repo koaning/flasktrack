@@ -1,19 +1,19 @@
-{% raw %}{% extends "layouts/base.html" %}
+{{ "{% extends \"layouts/base.html\" %}" }}
 
-{% block title %}New {{ model_name }} - {{ super() }}{% endblock %}
+{{ "{% block title %}" }}New {{ model_name }} - {{ "{{ super() }}" }}{{ "{% endblock %}" }}
 
-{% block content %}
+{{ "{% block content %}" }}
 <div class="container">
     <h1>New {{ model_name }}</h1>
     
     <div class="card">
         <div class="card-body">
-            {% include "{{ model_name_plural }}/_form.html" %}
+            {{ "{% include \"" }}{{ model_name_plural }}{{ "/_form.html\" %}" }}
         </div>
     </div>
     
     <div class="actions mt-3">
-        <a href="{{ url_for('{{ model_name_plural }}.index') }}" class="btn btn-secondary">Cancel</a>
+        <a href="{{ "{{ url_for('" }}{{ model_name_plural }}{{ ".index') }}" }}" class="btn btn-secondary">Cancel</a>
     </div>
 </div>
-{% endblock %}{% endraw %}
+{{ "{% endblock %}" }}
