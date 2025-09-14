@@ -38,3 +38,12 @@ clean:
     find . -type f -name ".coverage" -delete
     find . -type d -name ".pytest_cache" -exec rm -rf {} +
     find . -type d -name ".ruff_cache" -exec rm -rf {} +
+
+anew name="demo":
+    rm -rf {{name}}
+    uv run ft init {{name}}
+    cd {{name}} && just install 
+    cd {{name}} && uv pip install "-e" "../."
+    cd {{name}} && uv run ft scaffold Post user:references title:string contents:text 
+    cd {{name}} && uv run ft add-admin john "john@example.com"
+    cd {{name}} && just run
