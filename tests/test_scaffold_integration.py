@@ -147,8 +147,10 @@ def test_scaffold_integration_with_user_and_posts(runner):
             app_init = (project_dir / "app" / "__init__.py").read_text()
             assert "from app.controllers.posts import posts_bp" in app_init
             # Check for either single or double quotes
-            assert 'app.register_blueprint(posts_bp, url_prefix="/posts")' in app_init or \
-                   "app.register_blueprint(posts_bp, url_prefix='/posts')" in app_init
+            assert (
+                'app.register_blueprint(posts_bp, url_prefix="/posts")' in app_init
+                or "app.register_blueprint(posts_bp, url_prefix='/posts')" in app_init
+            )
 
         finally:
             # Restore original directory
